@@ -21,6 +21,15 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(sut.state, .setupRequired)
     }
 
+    func testAppLaunchNeverCallsHelperEnable() {
+        let client = FakeHelperClient(status: .off)
+        let sut = makeModel(client: client)
+
+        sut.start()
+
+        XCTAssertTrue(client.setEnabledValues.isEmpty)
+    }
+
     func testEnableReportsOnOnlyAfterHelperAcknowledgesOn() {
         let client = FakeHelperClient(status: .off)
         let sut = makeStartedModel(client: client)
@@ -160,7 +169,11 @@ private final class FakeHelperClient: HelperClientProtocol {
 @MainActor
 private final class FakePresenter: AppPresenting {
     func presentSetupRequired(needsSystemSettings: Bool) {}
-    func presentSetupStatus(_ assessment: HelperRegistrationAssessment) {}
+    func presentSetupStatus(
+        _ assessment: HelperRegistrationAssessment,
+        retryRegistration: @escaping @MainActor () -> Void,
+        removeHelper: @escaping @MainActor () -> Void
+    ) {}
     func presentError(_ message: String) {}
     func presentAbout() {}
 }

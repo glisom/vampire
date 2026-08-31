@@ -4,7 +4,11 @@ import ServiceManagement
 @MainActor
 protocol AppPresenting: AnyObject {
     func presentSetupRequired(needsSystemSettings: Bool)
-    func presentSetupStatus(_ assessment: HelperRegistrationAssessment)
+    func presentSetupStatus(
+        _ assessment: HelperRegistrationAssessment,
+        retryRegistration: @escaping @MainActor () -> Void,
+        removeHelper: @escaping @MainActor () -> Void
+    )
     func presentError(_ message: String)
     func presentAbout()
 }
@@ -24,22 +28,38 @@ final class SetupPresenter: AppPresenting {
         }
     }
 
-    func presentSetupStatus(_ assessment: HelperRegistrationAssessment) {
+    func presentSetupStatus(
+        _ assessment: HelperRegistrationAssessment,
+        retryRegistration: @escaping @MainActor () -> Void,
+        removeHelper: @escaping @MainActor () -> Void
+    ) {
         let alert = NSAlert()
         alert.messageText = "Insomnia Setup Status"
+        var action: (() -> Void)?
         switch assessment.state {
         case .setupRequired:
             alert.informativeText = assessment.needsSystemSettings
                 ? "The helper is waiting for approval in System Settings."
                 : "The privileged helper is not registered."
+            alert.addButton(withTitle: assessment.needsSystemSettings ? "Open System Settings" : "Retry Registration")
+            action = assessment.needsSystemSettings
+                ? { SMAppService.openSystemSettingsLoginItems() }
+                : retryRegistration
         case .off, .on:
             alert.informativeText = "The privileged helper is enabled."
+            alert.addButton(withTitle: "Remove Helper")
+            action = removeHelper
         case .unsupported:
             alert.informativeText = "Insomnia requires a MacBook with a built-in lid."
         case let .error(message):
             alert.informativeText = message
+            alert.addButton(withTitle: "Retry Registration")
+            action = retryRegistration
         }
-        alert.runModal()
+        alert.addButton(withTitle: "Done")
+        if alert.runModal() == .alertFirstButtonReturn {
+            action?()
+        }
     }
 
     func presentError(_ message: String) {

@@ -13,6 +13,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             registration: HelperRegistration(),
             helperClient: HelperClient(),
             presenter: presenter,
+            launchAtLogin: LaunchAtLoginController(),
             terminate: { [weak self] in
                 self?.allowTermination = true
                 NSApp.terminate(nil)

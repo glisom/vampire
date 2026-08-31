@@ -821,27 +821,27 @@ git commit -m "feat: add fail-safe menu bar experience"
 - Consumes: `SMAppService.mainApp`, `HelperClientProtocol.setEnabled(false)`, and `HelperRegistering.unregister()`.
 - Produces: launch-at-login checkbox state and a removal sequence that cannot unregister before Off acknowledgement.
 
-- [ ] **Step 1: Write failing Launch at Login tests**
+- [x] **Step 1: Write failing Launch at Login tests**
 
 Verify default Off, enabled/disabled status reflection, register/unregister error mapping, and that app launch never calls helper enable.
 
-- [ ] **Step 2: Write failing safe-removal tests**
+- [x] **Step 2: Write failing safe-removal tests**
 
 Assert exact event order `[setEnabled(false), unregisterHelper]`. If Off fails, assert unregister is never called. If unregister fails after Off, show the registration error while state remains Off.
 
-- [ ] **Step 3: Implement Launch at Login adapter**
+- [x] **Step 3: Implement Launch at Login adapter**
 
 Wrap `SMAppService.mainApp` behind a protocol with `status`, `register()`, and `unregister()`. The checkbox mirrors actual service status rather than persisting an independent `UserDefaults` boolean.
 
-- [ ] **Step 4: Implement Setup Status and Remove Helper**
+- [x] **Step 4: Implement Setup Status and Remove Helper**
 
 Setup Status displays helper registration state and buttons appropriate to that state: Approve in System Settings, Retry Registration, Remove Helper, or Done. Open System Settings only after a user click. Remove Helper must first confirm Off through XPC, then unregister the daemon.
 
-- [ ] **Step 5: Run app tests**
+- [x] **Step 5: Run app tests**
 
 Expected: PASS, with no real ServiceManagement mutation.
 
-- [ ] **Step 6: Commit lifecycle controls**
+- [x] **Step 6: Commit lifecycle controls**
 
 ```bash
 git add Insomnia InsomniaTests

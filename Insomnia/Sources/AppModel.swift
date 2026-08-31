@@ -6,6 +6,7 @@ final class AppModel {
     private let registration: HelperRegistering
     private let helperClient: HelperClientProtocol
     private let presenter: AppPresenting
+    private let launchAtLogin: LaunchAtLoginControlling
     private let terminate: @MainActor @Sendable () -> Void
     private var operationInFlight = false
 
@@ -20,16 +21,19 @@ final class AppModel {
         registration: HelperRegistering,
         helperClient: HelperClientProtocol,
         presenter: AppPresenting,
+        launchAtLogin: LaunchAtLoginControlling = LaunchAtLoginController(),
         terminate: @escaping @MainActor @Sendable () -> Void
     ) {
         self.hardware = hardware
         self.registration = registration
         self.helperClient = helperClient
         self.presenter = presenter
+        self.launchAtLogin = launchAtLogin
         self.terminate = terminate
     }
 
     func start() {
+        launchAtLoginEnabled = launchAtLogin.isEnabled
         guard hardware.isSupportedMacBook else {
             state = .unsupported
             return
@@ -52,12 +56,25 @@ final class AppModel {
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {
-        launchAtLoginEnabled = enabled
-        onStateChange?(state)
+        switch launchAtLogin.setEnabled(enabled) {
+        case let .success(actualValue):
+            launchAtLoginEnabled = actualValue
+            onStateChange?(state)
+        case .failure:
+            let message = enabled
+                ? "Launch at Login could not be enabled."
+                : "Launch at Login could not be disabled."
+            state = .error(message)
+            presenter.presentError(message)
+        }
     }
 
     func showSetupStatus() {
-        presenter.presentSetupStatus(registration.assessment())
+        presenter.presentSetupStatus(
+            registration.assessment(),
+            retryRegistration: { [weak self] in self?.performRegistration() },
+            removeHelper: { [weak self] in self?.removeHelper() }
+        )
     }
 
     func showAbout() {
@@ -84,6 +101,28 @@ final class AppModel {
             }
         case .setupRequired, .unsupported, .off:
             terminate()
+        }
+    }
+
+    func removeHelper() {
+        guard !operationInFlight else { return }
+        operationInFlight = true
+        helperClient.setEnabled(false) { [weak self] response in
+            guard let self else { return }
+            self.operationInFlight = false
+            guard response == .off else {
+                self.state = Self.errorState(from: response, fallback: "Normal lid-close sleep could not be restored.")
+                if case let .error(message) = self.state { self.presenter.presentError(message) }
+                return
+            }
+
+            self.state = .off
+            switch self.registration.unregister() {
+            case .success:
+                self.state = .setupRequired
+            case let .failure(error):
+                self.presenter.presentError(error.message)
+            }
         }
     }
 
