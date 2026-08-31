@@ -1,10 +1,5 @@
 import AppKit
 
-enum MenuIcon: Equatable {
-    case vampire(isAwake: Bool)
-    case systemSymbol(String)
-}
-
 struct MenuPresentation: Equatable {
     let statusTitle: String
     let primaryActionTitle: String
@@ -133,50 +128,4 @@ final class MenuController: NSObject {
     @objc private func showSetupStatus() { model.showSetupStatus() }
     @objc private func showAbout() { model.showAbout() }
     @objc private func quit() { model.quit() }
-}
-
-private enum StatusIconRenderer {
-    static func image(for icon: MenuIcon) -> NSImage? {
-        switch icon {
-        case let .systemSymbol(name):
-            return NSImage(systemSymbolName: name, accessibilityDescription: nil)
-        case let .vampire(isAwake):
-            return vampireImage(isAwake: isAwake)
-        }
-    }
-
-    private static func vampireImage(isAwake: Bool) -> NSImage {
-        let image = NSImage(size: NSSize(width: 18, height: 18), flipped: false) { _ in
-            let coffin = NSBezierPath()
-            coffin.move(to: NSPoint(x: 6, y: 1.5))
-            coffin.line(to: NSPoint(x: 12, y: 1.5))
-            coffin.line(to: NSPoint(x: 15, y: 5.5))
-            coffin.line(to: NSPoint(x: 13, y: 16.5))
-            coffin.line(to: NSPoint(x: 5, y: 16.5))
-            coffin.line(to: NSPoint(x: 3, y: 5.5))
-            coffin.close()
-
-            NSColor.black.set()
-            if isAwake {
-                coffin.fill()
-            } else {
-                coffin.lineWidth = 1.4
-                coffin.lineJoinStyle = .round
-                coffin.stroke()
-            }
-
-            let crescent = NSBezierPath()
-            crescent.windingRule = .evenOdd
-            crescent.appendOval(in: NSRect(x: 6, y: 6, width: 6, height: 7))
-            crescent.appendOval(in: NSRect(x: 8, y: 7, width: 5, height: 6))
-
-            if isAwake {
-                NSGraphicsContext.current?.compositingOperation = .destinationOut
-            }
-            crescent.fill()
-            return true
-        }
-        image.isTemplate = true
-        return image
-    }
 }
