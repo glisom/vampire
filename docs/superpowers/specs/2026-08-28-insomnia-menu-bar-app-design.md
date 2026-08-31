@@ -7,7 +7,7 @@ tags: [project, internal-tool, macos, app-design]
 
 # Insomnia Menu Bar App Design
 
-**Status:** Approved by Grant on 2026-08-31  
+**Status:** Approved by Grant on 2026-08-31; portable-hardware amendment approved on 2026-08-31
 **Owner:** Grant Isom  
 **Minimum OS:** macOS 13 Ventura  
 **Distribution:** Direct, outside the Mac App Store  
@@ -117,7 +117,7 @@ The helper runs only these fixed commands:
 
 No untrusted value is interpolated into either invocation. The app is not sandboxed because it must register and communicate with the privileged helper, but Hardened Runtime is enabled for every executable in the bundle.
 
-The app also performs a local hardware preflight using the Mac model identifier. It supports portable models whose identifier begins with `MacBook` and shows Unsupported on Macs without a built-in lid.
+The app and helper perform the same local hardware preflight. Legacy model identifiers beginning with `MacBook` are supported directly. Modern model identifiers beginning with `Mac` are supported only when I/O Kit reports a power source of type `kIOPSInternalBatteryType`. Other model families and `Mac` models without an internal battery show Unsupported. This avoids a fixed model whitelist while excluding desktop Macs and external UPS power sources.
 
 ## State and Recovery
 

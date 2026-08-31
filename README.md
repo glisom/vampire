@@ -38,7 +38,7 @@ Open Setup Status and choose Remove Helper. Insomnia first restores and verifies
 ## Troubleshooting
 
 - Setup Required: open Setup Status and retry registration or approve Insomnia in System Settings.
-- Unsupported Mac: Insomnia requires a model identifier beginning with `MacBook`.
+- Unsupported Mac: Insomnia requires a MacBook with a built-in internal battery. Legacy `MacBook*` and modern `Mac*` model identifiers are both supported.
 - Error: choose Retry Restore Lullaby. Insomnia will not claim Off while recovery is unresolved.
 - Helper unavailable: confirm the app is installed in `/Applications`, then retry Setup Status.
 

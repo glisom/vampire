@@ -35,7 +35,7 @@ Config/InsomniaHelper.entitlements               Hardened helper entitlements
 Insomnia/Sources/AppDelegate.swift               App lifecycle and status-item composition root
 Insomnia/Sources/AppModel.swift                  Main-actor app state and user actions
 Insomnia/Sources/AppState.swift                  UI state enum and copy
-Insomnia/Sources/HardwareSupport.swift           MacBook model preflight
+Insomnia/Sources/HardwareSupport.swift           Portable-Mac model and battery preflight
 Insomnia/Sources/HelperClient.swift              Privileged XPC client
 Insomnia/Sources/HelperRegistration.swift        SMAppService daemon registration/removal
 Insomnia/Sources/LaunchAtLoginController.swift   SMAppService.mainApp adapter
@@ -45,7 +45,7 @@ InsomniaShared/Sources/Constants.swift            Bundle, service, version, and 
 InsomniaShared/Sources/HelperState.swift          XPC-safe helper state values
 InsomniaShared/Sources/InsomniaHelperXPC.swift    Narrow @objc XPC protocol
 InsomniaHelper/Sources/CommandRunner.swift        Foundation Process adapter
-InsomniaHelper/Sources/HardwareSupport.swift      Helper-side MacBook model validation
+InsomniaHelper/Sources/HardwareSupport.swift      Helper-side portable-Mac validation
 InsomniaHelper/Sources/PMSetController.swift      Fixed pmset writes and readback parser
 InsomniaHelper/Sources/RecoveryMarkerStore.swift  Atomic root-owned active marker
 InsomniaHelper/Sources/HelperController.swift     Serialized fail-safe state machine
@@ -695,7 +695,7 @@ git commit -m "feat: expose helper through signed XPC service"
 
 - [x] **Step 1: Write failing hardware and state tests**
 
-Define supported identifiers as strings beginning with `MacBook`. Test `MacBookPro18,3` and `MacBookAir10,1` as supported; `Mac14,2`, `iMac21,1`, and empty strings as Unsupported.
+Define legacy identifiers beginning with `MacBook` as supported. Per the 2026-08-31 approved portable-hardware amendment, also support modern identifiers beginning with `Mac` when I/O Kit reports `kIOPSInternalBatteryType`. Test `MacBookPro18,3`, `MacBookAir10,1`, and `Mac17,2` with an internal battery as supported; test modern `Mac` identifiers without an internal battery, `iMac21,1`, and empty strings as Unsupported. Apply the same rule and tests to the helper-side hardware check.
 
 Define:
 
