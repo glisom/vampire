@@ -22,7 +22,6 @@ final class SetupPresenter: AppPresenting {
             ? "Approve Insomnia in Login Items so it can change lid-close sleep behavior."
             : "Insomnia needs one-time macOS approval to change lid-close sleep behavior."
         alert.addButton(withTitle: needsSystemSettings ? "Open System Settings" : "Continue")
-        alert.addButton(withTitle: "Not Now")
         if alert.runModal() == .alertFirstButtonReturn, needsSystemSettings {
             SMAppService.openSystemSettingsLoginItems()
         }

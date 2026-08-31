@@ -907,11 +907,11 @@ git commit -m "test: verify helper packaging and signing policy"
 - Consumes: complete app, Developer ID Application identity, full Xcode, and a notarytool Keychain profile named by the caller.
 - Produces: `build/release/Insomnia.dmg` and an auditable release checklist.
 
-- [ ] **Step 1: Write shell-script smoke tests**
+- [x] **Step 1: Write shell-script smoke tests**
 
 Run each script with missing arguments and assert a nonzero exit plus usage text. Run `bash -n scripts/*.sh` and ShellCheck if installed; do not install ShellCheck solely for this task.
 
-- [ ] **Step 2: Implement deterministic release build**
+- [x] **Step 2: Implement deterministic release build**
 
 `build-release.sh` must:
 
@@ -923,7 +923,7 @@ Run each script with missing arguments and assert a nonzero exit plus usage text
 6. Use `hdiutil create -fs HFS+ -volname Insomnia -srcfolder ... build/release/Insomnia.dmg`.
 7. Never print certificates, Keychain credentials, or environment secrets.
 
-- [ ] **Step 3: Implement notarization and verification**
+- [x] **Step 3: Implement notarization and verification**
 
 `notarize.sh` requires the DMG path and a nonempty `INSOMNIA_NOTARY_PROFILE`, then runs:
 
@@ -934,13 +934,13 @@ xcrun stapler staple "$dmg"
 
 `verify-release.sh` mounts the DMG read-only in a `mktemp -d` mountpoint, verifies app and nested helper signatures with `codesign`, runs `spctl --assess --type execute`, runs `xcrun stapler validate`, confirms both `arm64` and `x86_64` with `lipo -archs`, then detaches the image in a trap.
 
-- [ ] **Step 4: Write README and release checklist**
+- [x] **Step 4: Write README and release checklist**
 
 README sections: scope, requirements, installation, first-run helper approval, On/Off behavior, Launch at Login, safe helper removal, troubleshooting, privacy, development, tests, and release commands. State explicitly that Insomnia changes lid-close sleep only and does not replace Lungo.
 
 The release checklist must include: clean-account install, one-time approval, On/Off without repeated prompts, normal Quit, force Quit, helper kill/relaunch, restart while On, Launch at Login both states, Remove Helper, actual lid-close test On and Off, Gatekeeper test on a Mac that did not build the app, and final `pmset -a disablesleep 0` confirmation.
 
-- [ ] **Step 5: Run all nonprivileged verification**
+- [x] **Step 5: Run all nonprivileged verification**
 
 Run:
 
@@ -967,7 +967,7 @@ Record pass/fail and macOS/build version in the checklist. Do not notarize until
 
 Run the three release scripts with the selected Developer ID identity and stored notary profile. Expected: notary status Accepted, stapler validation success, Gatekeeper acceptance, and both architectures present.
 
-- [ ] **Step 8: Commit release tooling and docs**
+- [x] **Step 8: Commit release tooling and docs**
 
 ```bash
 git add .gitignore README.md docs/release-checklist.md scripts
