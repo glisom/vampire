@@ -29,8 +29,8 @@ Explicit approval is required immediately before this section. These checks temp
 - [x] Turn On, force quit the app, and confirm the helper restores Off.
 - [x] Turn On, kill the helper, and confirm launchd relaunch restores Off.
 - [x] Turn On, restart the Mac, and confirm Off before using the app after login.
-- [ ] Enable Launch at Login, restart/login, and confirm Vampire starts Off.
-- [ ] Disable Launch at Login and confirm it no longer launches.
+- [ ] Enable Launch at Login, restart/login, and confirm Vampire starts Off. (Restart check skipped by user request; setting was returned to disabled.)
+- [ ] Disable Launch at Login and confirm it no longer launches. (Disabled state confirmed in the menu; restart check skipped by user request.)
 - [ ] Use Remove Helper and confirm Off is verified before unregistration.
 - [ ] On a MacBook, verify actual lid-close behavior while On.
 - [ ] Turn Off Vampire and verify actual lid-close behavior while Off.
@@ -65,7 +65,7 @@ sudo /usr/bin/pmset -a disablesleep 0
 | Helper relaunch recovery | Pass | Killing helper PID 25514 left the root-owned recovery marker in place. Turn Off Vampire discarded the interrupted XPC connection, launchd started helper PID 37817, startup normalization completed, the marker cleared, and the app reported Off. The required explicit restore followed. |
 | Restart recovery | Pass | The Mac restarted while Vampire was On. Before the app ran after login, launchd had started helper PID 553, `disablesleep` was absent from both reported profiles, and the recovery marker was absent. The required explicit restore followed. |
 | Lid-close On and Off |  |  |
-| Launch at Login |  |  |
+| Launch at Login | Skipped | The setting successfully toggled On and back Off while Vampire remained Off. Grant chose to skip the two additional restart checks, so launch and non-launch behavior after login remain unverified. |
 | Safe removal |  |  |
 | Notarization and Gatekeeper |  |  |
 
@@ -76,6 +76,7 @@ Privileged acceptance notes:
 - The first helper-kill attempt safely restored Off but showed that the app retained a dead XPC connection, so the demand-launched helper did not restart. Commit `965c8de` installs the plan-required interruption and invalidation handlers and replaces the dead connection on retry; fake-connection regression coverage and independent review passed before rebuilding this candidate.
 - The repaired helper-kill acceptance rerun confirmed the recovery marker existed before PID 25514 was killed. A fresh Turn Off request launched PID 37817 through the replacement XPC connection; helper startup successfully normalized Off and removed the marker before the final explicit safety restore.
 - Restart-while-On acceptance confirmed the root helper launched during boot and normalized Off before Vampire ran in the login session. The stale marker was already cleared when checked as root, and the explicit post-test restore succeeded.
+- Launch at Login was enabled and then returned to disabled without changing the power state. The restart-based enabled and disabled checks were skipped at Grant's request.
 - Independent review found two helper-originated Insomnia error strings; both are Vampire-branded and covered by helper tests in `da85228`.
 - The signed Vampire candidate replaced `/Applications/Insomnia.app`; the previous app remains recoverably backed up at `build/release/acceptance-backup/Insomnia.app`.
 - An accidental ad-hoc Xcode Debug launch was rejected by the helper's Team-ID requirement before any `pmset` command ran. Relaunching the Developer-ID-signed `/Applications/Vampire.app` established the authenticated XPC connection and completed the On/Off test without renewed approval.
