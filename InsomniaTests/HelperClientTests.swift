@@ -47,6 +47,30 @@ final class HelperClientTests: XCTestCase {
         XCTAssertEqual(transport.setEnabledValues, [false])
     }
 
+    func testInvalidatedPrivilegedConnectionIsReplacedBeforeNextRequest() async {
+        let first = FakePrivilegedConnection(state: .on)
+        let second = FakePrivilegedConnection(state: .off)
+        let third = FakePrivilegedConnection(state: .on)
+        let factory = FakePrivilegedConnectionFactory(connections: [first, second, third])
+        let sut = PrivilegedHelperXPCTransport(makeConnection: factory.makeConnection)
+
+        let firstState = await status(from: sut)
+        XCTAssertEqual(firstState, .on)
+
+        first.simulateInvalidation()
+
+        let secondState = await status(from: sut)
+        XCTAssertEqual(secondState, .off)
+
+        second.simulateInterruption()
+
+        let thirdState = await status(from: sut)
+        XCTAssertEqual(thirdState, .on)
+        XCTAssertEqual(factory.connectionCount, 3)
+        XCTAssertEqual(first.invalidationHandlerInstallCount, 1)
+        XCTAssertEqual(first.interruptionHandlerInstallCount, 1)
+    }
+
     private func status(from client: HelperClient) async -> AppState {
         await withCheckedContinuation { continuation in
             client.getStatus { state in
@@ -55,10 +79,94 @@ final class HelperClientTests: XCTestCase {
             }
         }
     }
+
+    private func status(from transport: HelperXPCTransporting) async -> AppState {
+        await withCheckedContinuation { continuation in
+            transport.getStatus { state, _, _, _ in
+                continuation.resume(returning: HelperState(xpcValue: state) == .on ? .on : .off)
+            } error: { _ in
+                continuation.resume(returning: .error("transport failed"))
+            }
+        }
+    }
 }
 
 private enum TestTransportError: Error {
     case failed
+}
+
+private final class FakePrivilegedConnectionFactory: @unchecked Sendable {
+    private let connections: [FakePrivilegedConnection]
+    private let lock = NSLock()
+    private var nextIndex = 0
+
+    init(connections: [FakePrivilegedConnection]) {
+        self.connections = connections
+    }
+
+    var connectionCount: Int {
+        lock.withLock { nextIndex }
+    }
+
+    func makeConnection() -> HelperXPCConnecting {
+        lock.withLock {
+            defer { nextIndex += 1 }
+            return connections[nextIndex]
+        }
+    }
+}
+
+private final class FakePrivilegedConnection: HelperXPCConnecting, @unchecked Sendable {
+    private let proxy: FakePrivilegedHelperProxy
+    private(set) var invalidationHandlerInstallCount = 0
+    private(set) var interruptionHandlerInstallCount = 0
+    private var invalidationHandler: (@Sendable () -> Void)?
+    private var interruptionHandler: (@Sendable () -> Void)?
+
+    init(state: HelperState) {
+        proxy = FakePrivilegedHelperProxy(state: state)
+    }
+
+    func installHandlers(
+        interruption: @escaping @Sendable () -> Void,
+        invalidation: @escaping @Sendable () -> Void
+    ) {
+        interruptionHandlerInstallCount += 1
+        invalidationHandlerInstallCount += 1
+        interruptionHandler = interruption
+        invalidationHandler = invalidation
+    }
+
+    func activate() {}
+    func invalidate() {}
+
+    func remoteObjectProxyWithErrorHandler(_ handler: @escaping @Sendable (Error) -> Void) -> Any {
+        proxy
+    }
+
+    func simulateInvalidation() {
+        invalidationHandler?()
+    }
+
+    func simulateInterruption() {
+        interruptionHandler?()
+    }
+}
+
+private final class FakePrivilegedHelperProxy: NSObject, InsomniaHelperXPC {
+    private let state: HelperState
+
+    init(state: HelperState) {
+        self.state = state
+    }
+
+    func getStatus(reply: @escaping (Int, String, Int, String?) -> Void) {
+        reply(state.rawValue, AppConstants.helperVersion, HelperErrorCode.none.rawValue, nil)
+    }
+
+    func setEnabled(_ enabled: Bool, reply: @escaping (Int, Int, String?) -> Void) {
+        reply(state.rawValue, HelperErrorCode.none.rawValue, nil)
+    }
 }
 
 private final class FakeHelperTransport: HelperXPCTransporting, @unchecked Sendable {

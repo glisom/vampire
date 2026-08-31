@@ -76,24 +76,68 @@ private enum HelperTransportError: Error {
     case unavailable
 }
 
-private final class PrivilegedHelperXPCTransport: HelperXPCTransporting, @unchecked Sendable {
+protocol HelperXPCConnecting: AnyObject, Sendable {
+    func installHandlers(
+        interruption: @escaping @Sendable () -> Void,
+        invalidation: @escaping @Sendable () -> Void
+    )
+    func activate()
+    func invalidate()
+    func remoteObjectProxyWithErrorHandler(_ handler: @escaping @Sendable (Error) -> Void) -> Any
+}
+
+private final class SystemHelperXPCConnection: HelperXPCConnecting, @unchecked Sendable {
     private let connection: NSXPCConnection
 
     init() {
         connection = NSXPCConnection(machServiceName: AppConstants.helperLabel, options: .privileged)
         connection.remoteObjectInterface = NSXPCInterface(with: InsomniaHelperXPC.self)
+    }
+
+    func installHandlers(
+        interruption: @escaping @Sendable () -> Void,
+        invalidation: @escaping @Sendable () -> Void
+    ) {
+        connection.interruptionHandler = interruption
+        connection.invalidationHandler = invalidation
+    }
+
+    func activate() {
         connection.activate()
     }
 
-    deinit {
+    func invalidate() {
         connection.invalidate()
+    }
+
+    func remoteObjectProxyWithErrorHandler(_ handler: @escaping @Sendable (Error) -> Void) -> Any {
+        connection.remoteObjectProxyWithErrorHandler(handler)
+    }
+}
+
+final class PrivilegedHelperXPCTransport: HelperXPCTransporting, @unchecked Sendable {
+    private let makeConnection: @Sendable () -> HelperXPCConnecting
+    private let lock = NSLock()
+    private var connection: HelperXPCConnecting?
+    private var connectionGeneration = 0
+
+    init(makeConnection: @escaping @Sendable () -> HelperXPCConnecting = { SystemHelperXPCConnection() }) {
+        self.makeConnection = makeConnection
+    }
+
+    deinit {
+        let staleConnection = lock.withLock {
+            defer { connection = nil }
+            return connection
+        }
+        staleConnection?.invalidate()
     }
 
     func getStatus(
         reply: @escaping @Sendable (Int, String, Int, String?) -> Void,
         error: @escaping @Sendable (Error) -> Void
     ) {
-        guard let proxy = connection.remoteObjectProxyWithErrorHandler(error) as? InsomniaHelperXPC else {
+        guard let proxy = remoteProxy(error: error) else {
             error(HelperTransportError.unavailable)
             return
         }
@@ -105,10 +149,56 @@ private final class PrivilegedHelperXPCTransport: HelperXPCTransporting, @unchec
         reply: @escaping @Sendable (Int, Int, String?) -> Void,
         error: @escaping @Sendable (Error) -> Void
     ) {
-        guard let proxy = connection.remoteObjectProxyWithErrorHandler(error) as? InsomniaHelperXPC else {
+        guard let proxy = remoteProxy(error: error) else {
             error(HelperTransportError.unavailable)
             return
         }
         proxy.setEnabled(enabled, reply: reply)
+    }
+
+    private func remoteProxy(
+        error: @escaping @Sendable (Error) -> Void
+    ) -> InsomniaHelperXPC? {
+        let (activeConnection, generation) = connectionForUse()
+        let proxy = activeConnection.remoteObjectProxyWithErrorHandler { [weak self] connectionError in
+            self?.discardConnection(generation: generation)
+            error(connectionError)
+        }
+        guard let helper = proxy as? InsomniaHelperXPC else {
+            discardConnection(generation: generation)
+            return nil
+        }
+        return helper
+    }
+
+    private func connectionForUse() -> (HelperXPCConnecting, Int) {
+        lock.lock()
+        if let connection {
+            let generation = connectionGeneration
+            lock.unlock()
+            return (connection, generation)
+        }
+
+        connectionGeneration += 1
+        let generation = connectionGeneration
+        let newConnection = makeConnection()
+        connection = newConnection
+        lock.unlock()
+
+        newConnection.installHandlers(
+            interruption: { [weak self] in self?.discardConnection(generation: generation) },
+            invalidation: { [weak self] in self?.discardConnection(generation: generation) }
+        )
+        newConnection.activate()
+        return (newConnection, generation)
+    }
+
+    private func discardConnection(generation: Int) {
+        let staleConnection: HelperXPCConnecting? = lock.withLock {
+            guard connectionGeneration == generation else { return nil }
+            defer { connection = nil }
+            return connection
+        }
+        staleConnection?.invalidate()
     }
 }
