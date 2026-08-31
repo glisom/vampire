@@ -5,13 +5,14 @@ Record each result for the exact candidate being tested.
 - macOS version: 26.6.2 (25G83)
 - Mac model: MacBook Pro (Mac17,2, Apple M5)
 - Vampire version/build: 0.1.0 (1)
-- Git commit: pending Vampire rebrand commit
+- Signed candidate source commit: `da852280eff23b754396f89b7058999fd419a359`
+- `Vampire.dmg` SHA-256: `71178400fdf84cc7e0631a103253b24edb67bc78aa573fa3651da8a9fc2f228c`
 - Tester/date: Grant Isom / Codex, 2026-08-31 12:17 CDT
 
 ## Nonprivileged checks
 
 - [x] All app unit tests pass on the Vampire candidate. (35 tests)
-- [x] All helper unit tests pass. (27 tests)
+- [x] All helper unit tests pass. (28 tests)
 - [x] Packaged-app integration tests pass on `Vampire.app`. (4 tests; 2 expected ad-hoc Team-ID skips)
 - [x] Vampire bundle layout, DMG checksum, and static signature checks pass.
 - [x] Vampire and the helper contain both `arm64` and `x86_64`.
@@ -71,6 +72,7 @@ sudo /usr/bin/pmset -a disablesleep 0
 Privileged acceptance notes:
 
 - The user-facing Vampire rebrand preserves the existing bundle ID, helper label, XPC contract, and recovery path. The signed A+C icon candidate was built and verified without launching the app or changing real power settings.
+- Independent review found two helper-originated Insomnia error strings; both are Vampire-branded and covered by helper tests in `da85228`.
 - First signed launch exposed and resolved three pre-acceptance defects: modern MacBook detection (`289e073`), AppKit delegate bootstrapping (`492de3f`), and helper bundle layout (`f88db32`).
 - Service Management raw status 3 is the normal unregistered state, so Setup is now offered from that state (`a14ca8f`).
 - macOS recorded the helper and posted approval while synchronous registration reported not-yet-allowed; the final candidate handles that pending-approval race (`7dbbb41`).
