@@ -29,7 +29,7 @@ The app must prevent lid-close sleep while Vampire is On, restore normal lid-clo
 - The user-facing product name is **Vampire**.
 - The app icon is a friendly moon-vampire tucked into a stylized coffin, using a dark purple palette and warm moon glow.
 - The menu-bar image is a monochrome coffin-and-crescent template mark suitable for light and dark menu bars.
-- Menu actions use `Wake Vampire` and `Turn Off Vampire`; the former Lullaby wording is removed.
+- The menu uses one native checkable `Keep Mac Awake with Lid Closed` setting; the former Lullaby wording is removed.
 - Existing bundle IDs, helper labels, XPC names, target/module names, and recovery paths containing `insomnia` remain stable to preserve the approved helper security contract and macOS approval state.
 
 ## Success Criteria
@@ -99,7 +99,7 @@ flowchart LR
 3. The app registers its bundled launch daemon with `SMAppService`.
 4. If macOS reports that approval is required, the app offers a button that opens the relevant System Settings location.
 5. The app observes helper status and does not enable its main toggle until the helper is available.
-6. The Setup Status action later shows whether the helper is enabled and provides a Remove Helper action.
+6. The Setup & Status action later shows whether the helper is enabled and provides a Remove Helper action.
 
 Removing the helper first restores `disablesleep 0`, waits for verification, unregisters the daemon, and only then reports successful removal.
 
@@ -175,16 +175,16 @@ If `pmset -a disablesleep 0` fails, the helper retains the marker and emits an e
 Vampire uses an `NSStatusItem` and `NSMenu`, with `LSUIElement` enabled so it does not appear in the Dock.
 
 ```text
-Vampire: Off
-Wake Vampire
-────────────────
-Launch at Login        ✓/off
-Setup Status…
+Keep Mac Awake with Lid Closed    ✓/off
+──────────────────────────────────
+Launch at Login                   ✓/off
+Setup & Status…
+──────────────────────────────────
 About Vampire
-Quit
+Quit Vampire                      ⌘Q
 ```
 
-When active, the status line reads `Vampire: On` and the main action reads `Turn Off Vampire`. The menu-bar image uses the custom coffin-and-crescent template mark, with distinct Off and On treatments. Error adds the system warning badge treatment and a concise explanation in the menu.
+The primary item is a single native checkable setting. Its checkmark is On only while lid-close sleep is disabled. Setup Required replaces it with `Set Up Vampire…`; Unsupported replaces it with a disabled `Vampire Requires a MacBook`; Error replaces it with `Restore Normal Lid Sleep…`. The status item's accessibility label continues to announce `Vampire: On`, `Vampire: Off`, or the applicable exceptional state. The menu-bar image uses the custom coffin-and-crescent template mark, with distinct Off and On treatments. Error adds the system warning badge treatment and exposes the concise error detail as the recovery item's tooltip.
 
 First launch uses a single native explanatory alert before beginning setup. Setup Required, Unsupported, and Error states never visually resemble On.
 
@@ -198,7 +198,7 @@ Internal errors are mapped to actionable user-facing categories:
 
 - **Setup required:** register or approve the helper.
 - **Unsupported Mac:** explain that Vampire requires a MacBook with a built-in lid.
-- **Helper unavailable:** retry the connection or open Setup Status.
+- **Helper unavailable:** retry the connection or open Setup & Status.
 - **Unauthorized client:** treat as a security failure and remain Off.
 - **Command failed:** show the `pmset` exit status without exposing unrelated process data.
 - **Verification failed:** remain in Error until Off recovery succeeds.

@@ -5,19 +5,24 @@ struct MenuPresentation: Equatable {
     let primaryActionTitle: String
     let icon: MenuIcon
     let primaryEnabled: Bool
+    let primaryChecked: Bool
     let errorDetail: String?
+    let setupActionTitle = "Setup & Status…"
+    let quitActionTitle = "Quit Vampire"
 
     private init(
         statusTitle: String,
         primaryActionTitle: String,
         icon: MenuIcon,
         primaryEnabled: Bool,
+        primaryChecked: Bool,
         errorDetail: String?
     ) {
         self.statusTitle = statusTitle
         self.primaryActionTitle = primaryActionTitle
         self.icon = icon
         self.primaryEnabled = primaryEnabled
+        self.primaryChecked = primaryChecked
         self.errorDetail = errorDetail
     }
 
@@ -29,38 +34,43 @@ struct MenuPresentation: Equatable {
                 primaryActionTitle: "Set Up Vampire…",
                 icon: .vampire(isAwake: false),
                 primaryEnabled: true,
+                primaryChecked: false,
                 errorDetail: nil
             )
         case .unsupported:
             self.init(
                 statusTitle: "Vampire: Unsupported Mac",
-                primaryActionTitle: "Wake Vampire",
+                primaryActionTitle: "Vampire Requires a MacBook",
                 icon: .systemSymbol("exclamationmark.triangle"),
                 primaryEnabled: false,
+                primaryChecked: false,
                 errorDetail: nil
             )
         case .off:
             self.init(
                 statusTitle: "Vampire: Off",
-                primaryActionTitle: "Wake Vampire",
+                primaryActionTitle: "Keep Mac Awake with Lid Closed",
                 icon: .vampire(isAwake: false),
                 primaryEnabled: true,
+                primaryChecked: false,
                 errorDetail: nil
             )
         case .on:
             self.init(
                 statusTitle: "Vampire: On",
-                primaryActionTitle: "Turn Off Vampire",
+                primaryActionTitle: "Keep Mac Awake with Lid Closed",
                 icon: .vampire(isAwake: true),
                 primaryEnabled: true,
+                primaryChecked: true,
                 errorDetail: nil
             )
         case let .error(message):
             self.init(
                 statusTitle: "Vampire: Error",
-                primaryActionTitle: "Retry Turning Off Vampire",
+                primaryActionTitle: "Restore Normal Lid Sleep…",
                 icon: .systemSymbol("exclamationmark.triangle.fill"),
                 primaryEnabled: true,
+                primaryChecked: false,
                 errorDetail: message
             )
         }
@@ -87,13 +97,6 @@ final class MenuController: NSObject {
         statusItem.button?.setAccessibilityLabel(presentation.statusTitle)
 
         let menu = NSMenu()
-        let status = NSMenuItem(title: presentation.statusTitle, action: nil, keyEquivalent: "")
-        status.isEnabled = false
-        if let detail = presentation.errorDetail {
-            status.toolTip = detail
-        }
-        menu.addItem(status)
-
         let primary = NSMenuItem(
             title: presentation.primaryActionTitle,
             action: #selector(toggleInsomnia),
@@ -101,6 +104,8 @@ final class MenuController: NSObject {
         )
         primary.target = self
         primary.isEnabled = presentation.primaryEnabled
+        primary.state = presentation.primaryChecked ? .on : .off
+        primary.toolTip = presentation.errorDetail
         menu.addItem(primary)
         menu.addItem(.separator())
 
@@ -109,15 +114,25 @@ final class MenuController: NSObject {
         login.state = model.launchAtLoginEnabled ? .on : .off
         menu.addItem(login)
 
-        let setup = NSMenuItem(title: "Setup Status…", action: #selector(showSetupStatus), keyEquivalent: "")
+        let setup = NSMenuItem(
+            title: presentation.setupActionTitle,
+            action: #selector(showSetupStatus),
+            keyEquivalent: ""
+        )
         setup.target = self
         menu.addItem(setup)
+
+        menu.addItem(.separator())
 
         let about = NSMenuItem(title: "About Vampire", action: #selector(showAbout), keyEquivalent: "")
         about.target = self
         menu.addItem(about)
 
-        let quit = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
+        let quit = NSMenuItem(
+            title: presentation.quitActionTitle,
+            action: #selector(quit),
+            keyEquivalent: "q"
+        )
         quit.target = self
         menu.addItem(quit)
         statusItem.menu = menu

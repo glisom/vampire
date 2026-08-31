@@ -791,7 +791,7 @@ Extract a pure `MenuPresentation` value containing status title, primary action 
 
 Mark `AppModel` and `MenuController` `@MainActor`. `MenuController` owns one `NSStatusItem`, rebuilds a small `NSMenu` whenever presentation changes, and uses only SF Symbols. It creates no window and no custom image asset.
 
-The exact menu order is status, primary action, separator, Launch at Login, Setup Status, About Insomnia, Quit. Setup and errors use `NSAlert`; About uses `NSApp.orderFrontStandardAboutPanel`.
+The current menu order is the checkable primary setting, separator, Launch at Login, Setup & Status, separator, About Vampire, Quit Vampire. Setup and errors use `NSAlert`; About uses `NSApp.orderFrontStandardAboutPanel`. Task 12 records the approved redesign that superseded the original status-plus-action layout.
 
 - [x] **Step 4: Compose the app in AppDelegate**
 
@@ -1005,6 +1005,8 @@ git commit -m "release: add notarized direct distribution workflow"
 
 Assert `Vampire: Setup Required`, `Set Up Vampire…`, `Vampire: Off`, `Wake Vampire`, `Vampire: On`, `Turn Off Vampire`, and the Vampire error/retry wording. Assert the built product is `Vampire.app`, its display name is Vampire, its icon resource is present, and the stable bundle/helper identifiers are unchanged.
 
+These rebrand-stage menu assertions were later superseded by the approved native menu redesign in Task 12.
+
 - [x] **Step 2: Run focused tests and verify failure**
 
 Expected: FAIL because the existing product and presentation still use Insomnia/Lullaby and have no app-icon asset catalog.
@@ -1031,6 +1033,34 @@ Run all three test schemes, script syntax/smoke checks, bundle/signature checks,
 git add .gitignore Config Insomnia InsomniaTests InsomniaIntegrationTests project.yml README.md docs scripts
 git commit -m "feat: rebrand Insomnia as Vampire"
 ```
+
+---
+
+### Task 12: Native Menu Redesign
+
+**Approved amendment:** Grant approved the checkable native menu design on 2026-08-31. The Vampire brand, status icon, product boundary, helper behavior, and stable identifiers remain unchanged.
+
+**Files:**
+- Modify: `InsomniaTests/MenuPresentationTests.swift`
+- Modify: `Insomnia/Sources/MenuController.swift`
+- Modify: `docs/superpowers/specs/2026-08-28-insomnia-menu-bar-app-design.md`
+- Modify: `README.md`
+
+- [x] **Step 1: Write failing presentation tests**
+
+Assert the descriptive `Keep Mac Awake with Lid Closed` title for Off and On, the On-only checked state, and clear Setup Required, Unsupported, and Error labels.
+
+- [x] **Step 2: Verify the focused tests fail for the old menu presentation**
+
+Expected: FAIL because the menu still uses separate `Wake Vampire` and `Turn Off Vampire` actions and has no primary checked state.
+
+- [x] **Step 3: Implement the native menu hierarchy**
+
+Use one checkable primary setting, remove the redundant disabled status row, group settings and app commands with separators, rename setup to `Setup & Status…`, and use the conventional `Quit Vampire` label with Command-Q. Keep the status item's state-specific accessibility label.
+
+- [x] **Step 4: Run the full nonprivileged app test suite and build**
+
+- [x] **Step 5: Commit the menu redesign**
 
 ---
 

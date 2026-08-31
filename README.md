@@ -1,6 +1,6 @@
 # Vampire
 
-Vampire is a native macOS menu-bar utility that changes lid-close sleep behavior. Wake Vampire applies `pmset -a disablesleep 1`; Turn Off Vampire applies `pmset -a disablesleep 0`.
+Vampire is a native macOS menu-bar utility that changes lid-close sleep behavior. Selecting Keep Mac Awake with Lid Closed applies `pmset -a disablesleep 1`; clearing it applies `pmset -a disablesleep 0`.
 
 Vampire changes lid-close sleep only. It does not prevent ordinary idle sleep, display sleep, or screen locking, and it does not replace Lungo.
 
@@ -23,9 +23,9 @@ Later On and Off changes should not request an administrator password.
 
 ## Using Vampire
 
-Choose Wake Vampire to prevent lid-close sleep. The menu does not report On until the helper successfully changes and verifies the setting.
+Select Keep Mac Awake with Lid Closed to prevent lid-close sleep. The item does not show a checkmark until the helper successfully changes and verifies the setting.
 
-Choose Turn Off Vampire to restore normal lid-close sleep. Normal Quit also restores Off and waits for acknowledgement before exiting. A helper restart, app disconnect, or Mac restart likewise normalizes the setting to Off.
+Clear Keep Mac Awake with Lid Closed to restore normal lid-close sleep. Normal Quit also restores Off and waits for acknowledgement before exiting. A helper restart, app disconnect, or Mac restart likewise normalizes the setting to Off.
 
 ## Launch at Login
 
@@ -33,14 +33,14 @@ Launch at Login mirrors the registration state managed by macOS. It defaults Off
 
 ## Safe helper removal
 
-Open Setup Status and choose Remove Helper. Vampire first restores and verifies Off, then unregisters the helper. If restoration fails, the helper remains registered so recovery can be retried.
+Open Setup & Status and choose Remove Helper. Vampire first restores and verifies Off, then unregisters the helper. If restoration fails, the helper remains registered so recovery can be retried.
 
 ## Troubleshooting
 
-- Setup Required: open Setup Status and retry registration or approve Vampire in System Settings.
+- Setup Required: open Setup & Status and retry registration or approve Vampire in System Settings.
 - Unsupported Mac: Vampire requires a MacBook with a built-in internal battery. Legacy `MacBook*` and modern `Mac*` model identifiers are both supported.
-- Error: choose Retry Turning Off Vampire. Vampire will not claim Off while recovery is unresolved.
-- Helper unavailable: confirm the app is installed in `/Applications`, then retry Setup Status.
+- Error: choose Restore Normal Lid Sleep. Vampire will not claim Off while recovery is unresolved.
+- Helper unavailable: confirm the app is installed in `/Applications`, then retry Setup & Status.
 
 For emergency manual restoration, run `sudo /usr/bin/pmset -a disablesleep 0`.
 
