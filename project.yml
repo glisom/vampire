@@ -1,0 +1,111 @@
+name: Insomnia
+options:
+  minimumXcodeGenVersion: 2.45.0
+  deploymentTarget:
+    macOS: "13.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: YES
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: 1
+    ONLY_ACTIVE_ARCH: NO
+targets:
+  InsomniaShared:
+    type: library.static
+    platform: macOS
+    sources: [InsomniaShared/Sources]
+  InsomniaHelper:
+    type: tool
+    platform: macOS
+    sources: [InsomniaHelper/Sources]
+    dependencies:
+      - target: InsomniaShared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: co.groundwork-ai.insomnia.helper
+        CODE_SIGN_ENTITLEMENTS: Config/InsomniaHelper.entitlements
+        SKIP_INSTALL: YES
+  Insomnia:
+    type: application
+    platform: macOS
+    sources: [Insomnia/Sources]
+    dependencies:
+      - target: InsomniaShared
+      - target: InsomniaHelper
+    info:
+      path: Config/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: co.groundwork-ai.insomnia
+        CODE_SIGN_ENTITLEMENTS: Config/Insomnia.entitlements
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    postBuildScripts:
+      - name: Embed Privileged Helper
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          destination="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchDaemons"
+          /bin/mkdir -p "$destination"
+          /usr/bin/install -m 755 "${BUILT_PRODUCTS_DIR}/InsomniaHelper" "$destination/InsomniaHelper"
+          /usr/bin/install -m 644 "${SRCROOT}/InsomniaHelper/Resources/co.groundwork-ai.insomnia.helper.plist" "$destination/co.groundwork-ai.insomnia.helper.plist"
+          identity="${EXPANDED_CODE_SIGN_IDENTITY:--}"
+          /usr/bin/codesign --force --sign "$identity" --options runtime --timestamp=none --entitlements "${SRCROOT}/Config/InsomniaHelper.entitlements" "$destination/InsomniaHelper"
+  InsomniaTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [InsomniaTests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Insomnia
+  InsomniaHelperTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: InsomniaHelperTests
+      - path: InsomniaHelper/Sources
+        excludes: [main.swift]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: InsomniaShared
+  InsomniaIntegrationTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [InsomniaIntegrationTests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Insomnia
+      - target: InsomniaShared
+schemes:
+  Insomnia:
+    build:
+      targets:
+        Insomnia: all
+  InsomniaTests:
+    build:
+      targets:
+        Insomnia: all
+        InsomniaTests: [test]
+    test:
+      targets: [InsomniaTests]
+  InsomniaHelperTests:
+    build:
+      targets:
+        InsomniaHelperTests: [test]
+    test:
+      targets: [InsomniaHelperTests]
+  InsomniaIntegrationTests:
+    build:
+      targets:
+        Insomnia: all
+        InsomniaIntegrationTests: [test]
+    test:
+      targets: [InsomniaIntegrationTests]

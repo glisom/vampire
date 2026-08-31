@@ -1,0 +1,6 @@
+.DS_Store
+/Insomnia.xcodeproj/
+/build/
+/DerivedData/
+*.xcuserstate
+xcuserdata/

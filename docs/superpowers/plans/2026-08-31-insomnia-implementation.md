@@ -83,7 +83,7 @@ README.md                                         Install, setup, removal, and t
 - Consumes: Full Xcode selected by `xcode-select`; XcodeGen 2.45+.
 - Produces: Buildable `Insomnia`, `InsomniaHelper`, `InsomniaTests`, `InsomniaHelperTests`, and `InsomniaIntegrationTests` schemes; `AppConstants` shared by both executables.
 
-- [ ] **Step 1: Verify toolchain prerequisites without installing anything**
+- [x] **Step 1: Verify toolchain prerequisites without installing anything**
 
 Run:
 
@@ -95,7 +95,7 @@ xcodegen --version
 
 Expected: full Xcode reports version 16 or newer, the SDK path is inside `Xcode.app`, and XcodeGen reports 2.45 or newer. If `xcodebuild` is missing or the SDK remains under `CommandLineTools`, stop and ask Grant to install/select full Xcode.
 
-- [ ] **Step 2: Create the project definition and metadata**
+- [x] **Step 2: Create the project definition and metadata**
 
 Create `project.yml`:
 
@@ -269,7 +269,7 @@ Create both entitlements files with this exact content; Hardened Runtime comes f
 <plist version="1.0"><dict/></plist>
 ```
 
-- [ ] **Step 3: Add minimal compilation stubs**
+- [x] **Step 3: Add minimal compilation stubs**
 
 Create `InsomniaShared/Sources/Constants.swift`:
 
@@ -288,7 +288,7 @@ public enum AppConstants {
 
 Create an `@main` AppKit `AppDelegate` that terminates after the last window closes is disabled, and create helper `main.swift` that exits with status `0`. These are temporary compilation stubs only; later tasks replace behavior without changing target names.
 
-- [ ] **Step 4: Generate the Xcode project and build every target**
+- [x] **Step 4: Generate the Xcode project and build every target**
 
 Run:
 
@@ -301,7 +301,7 @@ xcodebuild -project Insomnia.xcodeproj -scheme InsomniaHelperTests -configuratio
 
 Expected: all commands exit `0`, and the built app contains `Contents/Library/LaunchDaemons/InsomniaHelper` plus the plist.
 
-- [ ] **Step 5: Commit the skeleton**
+- [x] **Step 5: Commit the skeleton**
 
 ```bash
 git add project.yml .gitignore Config Insomnia InsomniaShared InsomniaHelper
