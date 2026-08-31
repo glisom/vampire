@@ -8,7 +8,13 @@ struct HelperResult {
     let message: String?
 }
 
-final class HelperController {
+protocol HelperControlling: AnyObject {
+    func status() -> HelperResult
+    func setEnabled(_ enabled: Bool) -> HelperResult
+    func connectionInvalidated()
+}
+
+final class HelperController: HelperControlling, @unchecked Sendable {
     private let powerSettings: PowerSettingsManaging
     private let markerStore: RecoveryMarkerStoring
     private let queue = DispatchQueue(label: "co.groundwork-ai.insomnia.helper.controller")

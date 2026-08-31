@@ -631,7 +631,7 @@ git commit -m "feat: add fail-safe helper recovery state machine"
 - Consumes: `InsomniaHelperXPC`, `HelperController`, `AppConstants.appBundleID`, and `AppConstants.helperLabel`.
 - Produces: live privileged Mach service `co.groundwork-ai.insomnia.helper` and a pure `SigningRequirementBuilding.requirement(appIdentifier:teamIdentifier:)` function.
 
-- [ ] **Step 1: Write failing signing-requirement tests**
+- [x] **Step 1: Write failing signing-requirement tests**
 
 Assert this exact result for team `ABCDE12345`:
 
@@ -641,11 +641,11 @@ identifier "co.groundwork-ai.insomnia" and anchor apple generic and certificate 
 
 Reject an empty team identifier before creating the listener.
 
-- [ ] **Step 2: Write failing helper-service tests**
+- [x] **Step 2: Write failing helper-service tests**
 
 Verify `getStatus` maps controller results to stable raw values, `setEnabled` delegates exactly once, and invalidating an accepted connection calls `connectionInvalidated()` exactly once.
 
-- [ ] **Step 3: Implement signing-team lookup and listener**
+- [x] **Step 3: Implement signing-team lookup and listener**
 
 Use `SecCodeCopySelf` and `SecCodeCopySigningInformation` with `kSecCSSigningInformation`; read `kSecCodeInfoTeamIdentifier` as a nonempty `String`. Build the requirement through the tested pure function.
 
@@ -661,15 +661,15 @@ RunLoop.current.run()
 
 In the delegate, assign `NSXPCInterface(with: InsomniaHelperXPC.self)`, export one `HelperService` per accepted connection, install an invalidation handler that calls controller recovery once, then activate the connection.
 
-- [ ] **Step 4: Replace helper main with fail-safe startup**
+- [x] **Step 4: Replace helper main with fail-safe startup**
 
 Construct `ProcessCommandRunner`, helper-side `MacBookHardwareSupport`, `PMSetController`, `FileRecoveryMarkerStore` at the fixed path, and `HelperController`. Call `normalizeAtStartup()` before creating the listener. If it returns Error, still start the listener so the app can display the failure and retry Off; never attempt On during startup.
 
-- [ ] **Step 5: Run helper tests and unsigned Debug build**
+- [x] **Step 5: Run helper tests and unsigned Debug build**
 
 Expected: unit tests PASS and Debug build succeeds. Do not register or launch the real daemon yet.
 
-- [ ] **Step 6: Commit secure XPC helper**
+- [x] **Step 6: Commit secure XPC helper**
 
 ```bash
 git add InsomniaHelper InsomniaHelperTests
