@@ -35,11 +35,11 @@ targets:
     dependencies:
       - target: InsomniaShared
       - target: InsomniaHelper
-    info:
-      path: Config/Info.plist
+        embed: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: co.groundwork-ai.insomnia
+        INFOPLIST_FILE: Config/Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/Insomnia.entitlements
         ENABLE_USER_SCRIPT_SANDBOXING: NO
     postBuildScripts:
@@ -77,13 +77,24 @@ targets:
   InsomniaIntegrationTests:
     type: bundle.unit-test
     platform: macOS
-    sources: [InsomniaIntegrationTests]
+    sources:
+      - path: InsomniaIntegrationTests
+      - path: InsomniaHelper/Sources/TeamIdentifier.swift
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: Insomnia
       - target: InsomniaShared
+      - target: InsomniaWrongIdentifierClient
+  InsomniaWrongIdentifierClient:
+    type: tool
+    platform: macOS
+    sources: [InsomniaWrongIdentifierClient/Sources]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: co.groundwork-ai.insomnia.wrong-client
+        SKIP_INSTALL: YES
 schemes:
   Insomnia:
     build:

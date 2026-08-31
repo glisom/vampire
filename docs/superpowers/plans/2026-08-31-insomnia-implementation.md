@@ -861,19 +861,19 @@ git commit -m "feat: add login launch and safe helper removal"
 - Consumes: built `Insomnia.app`, embedded helper, launchd plist, and code-signing requirement builder.
 - Produces: automated evidence that the bundle layout and signing restrictions match the design without registering the daemon.
 
-- [ ] **Step 1: Write failing bundle-layout tests**
+- [x] **Step 1: Write failing bundle-layout tests**
 
 Locate the built app via test environment. Assert the helper and plist exist under `Contents/Library/LaunchDaemons`, the app has `LSUIElement = true`, the daemon label and Mach service are exact, `RunAtLoad = true`, and `BundleProgram` points to the embedded helper.
 
-- [ ] **Step 2: Write failing signing tests**
+- [x] **Step 2: Write failing signing tests**
 
 Use `SecStaticCodeCreateWithPath` plus `SecCodeCopySigningInformation` to assert app and helper have the same nonempty Team Identifier in signed configurations. Compile a small wrong-identifier test client target, and assert its signature fails the generated requirement with `SecStaticCodeCheckValidity`.
 
-- [ ] **Step 3: Implement the bundle-check script**
+- [x] **Step 3: Implement the bundle-check script**
 
 `scripts/check-bundle.sh` accepts one app path, validates explicit nonempty input, runs `plutil -lint` on both plists, `codesign --verify --deep --strict --verbose=2`, and checks expected embedded paths. It performs no registration and no power-setting mutation.
 
-- [ ] **Step 4: Run integration checks**
+- [x] **Step 4: Run integration checks**
 
 Run:
 
@@ -884,7 +884,7 @@ scripts/check-bundle.sh "$(find "$HOME/Library/Developer/Xcode/DerivedData" -pat
 
 Expected: PASS without an administrator prompt.
 
-- [ ] **Step 5: Commit integration checks**
+- [x] **Step 5: Commit integration checks**
 
 ```bash
 git add InsomniaIntegrationTests scripts/check-bundle.sh
