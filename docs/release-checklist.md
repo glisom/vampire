@@ -25,8 +25,8 @@ Explicit approval is required immediately before this section. These checks temp
 - [x] Complete the one-time macOS helper approval. (Approved on signed pre-final candidate; helper is enabled and running.)
 - [x] Confirm later On and Off actions do not prompt again.
 - [x] Turn On and confirm the app reports On only after helper acknowledgement.
-- [ ] Choose normal Quit while On and confirm Off before exit.
-- [ ] Turn On, force quit the app, and confirm the helper restores Off.
+- [x] Choose normal Quit while On and confirm Off before exit.
+- [x] Turn On, force quit the app, and confirm the helper restores Off.
 - [ ] Turn On, kill the helper, and confirm launchd relaunch restores Off.
 - [ ] Turn On, restart the Mac, and confirm Off before using the app after login.
 - [ ] Enable Launch at Login, restart/login, and confirm Vampire starts Off.
@@ -61,7 +61,7 @@ sudo /usr/bin/pmset -a disablesleep 0
 |---|---|---|
 | Privileged helper setup | Pass | Service Management approval completed; daemon is enabled and running. Initial UI falsely reported failure while approval was pending; fixed by `7dbbb41`. |
 | Enable and disable | Pass | Signed `/Applications/Vampire.app` reused the approved helper without a new prompt. Wake Vampire reported On only after helper acknowledgement; Turn Off Vampire reported Off; the required explicit restore completed. |
-| Quit and crash recovery |  |  |
+| Quit and crash recovery | Pass | Normal Quit waited for the helper's Off acknowledgement before termination. A `SIGKILL` while On invalidated XPC, and the helper restored Off while remaining healthy. Explicit safety restores followed both attempts. |
 | Helper relaunch recovery |  |  |
 | Restart recovery |  |  |
 | Lid-close On and Off |  |  |
@@ -75,7 +75,8 @@ Privileged acceptance notes:
 - Independent review found two helper-originated Insomnia error strings; both are Vampire-branded and covered by helper tests in `da85228`.
 - The signed Vampire candidate replaced `/Applications/Insomnia.app`; the previous app remains recoverably backed up at `build/release/acceptance-backup/Insomnia.app`.
 - An accidental ad-hoc Xcode Debug launch was rejected by the helper's Team-ID requirement before any `pmset` command ran. Relaunching the Developer-ID-signed `/Applications/Vampire.app` established the authenticated XPC connection and completed the On/Off test without renewed approval.
+- Normal Quit while On completed only after Off was acknowledged. Force-quitting the signed app while On caused the helper to observe the client disconnect and restore Off; the helper remained running.
 - First signed launch exposed and resolved three pre-acceptance defects: modern MacBook detection (`289e073`), AppKit delegate bootstrapping (`492de3f`), and helper bundle layout (`f88db32`).
 - Service Management raw status 3 is the normal unregistered state, so Setup is now offered from that state (`a14ca8f`).
 - macOS recorded the helper and posted approval while synchronous registration reported not-yet-allowed; the final candidate handles that pending-approval race (`7dbbb41`).
-- Required manual `sudo /usr/bin/pmset -a disablesleep 0` restores were completed after the registration attempt, after the rejected Debug-client attempt, and after the signed candidate's successful On/Off test. Final `pmset -g custom` output omitted `disablesleep` from both battery and AC profiles.
+- Required manual `sudo /usr/bin/pmset -a disablesleep 0` restores were completed after the registration attempt, after the rejected Debug-client attempt, after the signed candidate's successful On/Off test, after normal Quit recovery, and after force-quit recovery. Final `pmset -g custom` output omitted `disablesleep` from both battery and AC profiles.
