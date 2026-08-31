@@ -756,7 +756,7 @@ git commit -m "feat: add helper setup and XPC client infrastructure"
 - Consumes: `AppState`, `HelperRegistering`, `HelperClientProtocol`, and hardware support.
 - Produces: menu actions `toggleInsomnia()`, `setLaunchAtLogin(_:)`, `showSetupStatus()`, `showAbout()`, and `quit()`.
 
-- [ ] **Step 1: Write failing AppModel transition tests**
+- [x] **Step 1: Write failing AppModel transition tests**
 
 Cover:
 
@@ -772,7 +772,7 @@ func testQuitFailureKeepsAppRunningInError()
 
 Use injected closures for termination and alert presentation; tests must not call `NSApp.terminate`.
 
-- [ ] **Step 2: Write failing menu-presentation tests**
+- [x] **Step 2: Write failing menu-presentation tests**
 
 Extract a pure `MenuPresentation` value containing status title, primary action title, symbol name, primary enabled flag, and error detail. Assert:
 
@@ -784,21 +784,21 @@ Extract a pure `MenuPresentation` value containing status title, primary action 
 | On | `Insomnia: On` | `Restore Lullaby` | `moon.zzz.fill` |
 | Error | `Insomnia: Error` | `Retry Restore Lullaby` | `exclamationmark.triangle.fill` |
 
-- [ ] **Step 3: Implement model and menu controller**
+- [x] **Step 3: Implement model and menu controller**
 
 Mark `AppModel` and `MenuController` `@MainActor`. `MenuController` owns one `NSStatusItem`, rebuilds a small `NSMenu` whenever presentation changes, and uses only SF Symbols. It creates no window and no custom image asset.
 
 The exact menu order is status, primary action, separator, Launch at Login, Setup Status, About Insomnia, Quit. Setup and errors use `NSAlert`; About uses `NSApp.orderFrontStandardAboutPanel`.
 
-- [ ] **Step 4: Compose the app in AppDelegate**
+- [x] **Step 4: Compose the app in AppDelegate**
 
 Instantiate production hardware support, registration, helper client, launch-at-login controller, presenter, model, and menu controller. Retain them for the app lifetime. Start the model from `applicationDidFinishLaunching`.
 
-- [ ] **Step 5: Run all app tests and build**
+- [x] **Step 5: Run all app tests and build**
 
 Expected: PASS and the app builds without registering the daemon during tests.
 
-- [ ] **Step 6: Commit menu app**
+- [x] **Step 6: Commit menu app**
 
 ```bash
 git add Insomnia InsomniaTests
