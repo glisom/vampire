@@ -75,8 +75,20 @@ final class HelperControllerTests: XCTestCase {
         )
 
         XCTAssertEqual(sut.normalizeAtStartup().state, .error)
-        XCTAssertEqual(sut.setEnabled(true).error, .recoveryFailed)
+        let result = sut.setEnabled(true)
+        XCTAssertEqual(result.error, .recoveryFailed)
+        XCTAssertEqual(result.message, "Normal sleep must be restored before waking Vampire.")
         XCTAssertEqual(recorder.events, [.setPower(false)])
+    }
+
+    func testUnsupportedHardwareMessageUsesVampireBrand() {
+        let recorder = EventRecorder()
+        let sut = makeController(enableError: PMSetError.unsupportedHardware, recorder: recorder)
+
+        let result = sut.setEnabled(true)
+
+        XCTAssertEqual(result.error, .unsupportedHardware)
+        XCTAssertEqual(result.message, "Vampire requires a MacBook with a built-in lid.")
     }
 }
 

@@ -51,7 +51,7 @@ final class HelperController: HelperControlling, @unchecked Sendable {
 
     private func enableLocked() -> HelperResult {
         if result.state == .error, markerStore.exists {
-            return update(state: .error, error: .recoveryFailed, message: "Normal sleep must be restored before enabling Insomnia.")
+            return update(state: .error, error: .recoveryFailed, message: "Normal sleep must be restored before waking Vampire.")
         }
 
         do {
@@ -95,7 +95,7 @@ final class HelperController: HelperControlling, @unchecked Sendable {
     private func helperError(for error: Error) -> (code: HelperErrorCode, message: String) {
         switch error {
         case PMSetError.unsupportedHardware:
-            return (.unsupportedHardware, "Insomnia requires a MacBook with a built-in lid.")
+            return (.unsupportedHardware, "Vampire requires a MacBook with a built-in lid.")
         case let PMSetError.commandFailed(exitCode, _):
             return (.commandFailed, "pmset exited with status \(exitCode).")
         case PMSetError.verificationFailed:
