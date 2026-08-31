@@ -404,7 +404,7 @@ git commit -m "feat: define privileged helper XPC contract"
 - Consumes: no prior runtime interface.
 - Produces: `CommandRunning.run(executable:arguments:)`, `HardwareChecking.isSupportedMacBook`, and `PowerSettingsManaging.setSleepDisabled(_:)`.
 
-- [ ] **Step 1: Write failing command-policy and parser tests**
+- [x] **Step 1: Write failing command-policy and parser tests**
 
 Use a recording fake and cover:
 
@@ -448,11 +448,11 @@ func testMissingReadbackKeyAcceptsSuccessfulWriteOnlyOnMacBook() {
 }
 ```
 
-- [ ] **Step 2: Run the focused test and verify failure**
+- [x] **Step 2: Run the focused test and verify failure**
 
 Expected: FAIL because the adapter types are undefined.
 
-- [ ] **Step 3: Implement the runner and controller**
+- [x] **Step 3: Implement the runner and controller**
 
 Define:
 
@@ -485,11 +485,11 @@ enum PMSetError: Error, Equatable {
 
 Parse every line matching optional whitespace plus `disablesleep` plus `0` or `1`. Return `nil` when no such line exists. Throw verification failure if reported profiles disagree with each other or the requested value.
 
-- [ ] **Step 4: Run PMSet tests and the full helper test suite**
+- [x] **Step 4: Run PMSet tests and the full helper test suite**
 
 Expected: PASS and the recording fake shows no command other than the three spec-approved forms.
 
-- [ ] **Step 5: Commit the adapter**
+- [x] **Step 5: Commit the adapter**
 
 ```bash
 git add InsomniaHelper/Sources InsomniaHelperTests/PMSetControllerTests.swift
