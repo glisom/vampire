@@ -722,6 +722,8 @@ Using a fake XPC transport, verify status raw values map to AppState, connection
 
 `HelperRegistration` owns `SMAppService.daemon(plistName: AppConstants.helperPlistName)`. Its register and unregister methods surface typed results and never modify the power setting themselves.
 
+If `register()` throws after Service Management has already recorded the daemon as `.requiresApproval` or `.enabled`, return the updated assessment instead of a false registration failure. A launch daemon can be recorded and trigger the macOS approval UI before the synchronous registration call reports that it is not yet allowed to bootstrap.
+
 `HelperClient` creates:
 
 ```swift

@@ -43,28 +43,46 @@ protocol HelperRegistering: AnyObject {
 }
 
 final class HelperRegistration: HelperRegistering {
-    private let service: SMAppService
+    private let serviceStatus: () -> HelperServiceStatus
+    private let registerService: () throws -> Void
+    private let unregisterService: () throws -> Void
 
     init(service: SMAppService = .daemon(plistName: AppConstants.helperPlistName)) {
-        self.service = service
+        serviceStatus = { service.status.helperServiceStatus }
+        registerService = { try service.register() }
+        unregisterService = { try service.unregister() }
+    }
+
+    init(
+        serviceStatus: @escaping () -> HelperServiceStatus,
+        registerService: @escaping () throws -> Void,
+        unregisterService: @escaping () throws -> Void
+    ) {
+        self.serviceStatus = serviceStatus
+        self.registerService = registerService
+        self.unregisterService = unregisterService
     }
 
     func assessment() -> HelperRegistrationAssessment {
-        HelperRegistrationAssessment(status: service.status.helperServiceStatus)
+        HelperRegistrationAssessment(status: serviceStatus())
     }
 
     func register() -> Result<HelperRegistrationAssessment, HelperRegistrationFailure> {
         do {
-            try service.register()
+            try registerService()
             return .success(assessment())
         } catch {
+            let currentAssessment = assessment()
+            if currentAssessment.needsSystemSettings || currentAssessment.canConnect {
+                return .success(currentAssessment)
+            }
             return .failure(.registrationFailed("The privileged helper could not be registered."))
         }
     }
 
     func unregister() -> Result<Void, HelperRegistrationFailure> {
         do {
-            try service.unregister()
+            try unregisterService()
             return .success(())
         } catch {
             return .failure(.removalFailed("The privileged helper could not be removed."))

@@ -29,4 +29,38 @@ final class HelperRegistrationTests: XCTestCase {
             .init(state: .setupRequired, needsSystemSettings: false, canConnect: false)
         )
     }
+
+    func testRegisterReturnsRequiresApprovalWhenSystemRecordsItemBeforeThrowing() {
+        var status = HelperServiceStatus.notFound
+        let sut = HelperRegistration(
+            serviceStatus: { status },
+            registerService: {
+                status = .requiresApproval
+                throw StubServiceError.operationNotPermitted
+            },
+            unregisterService: {}
+        )
+
+        XCTAssertEqual(
+            sut.register(),
+            .success(.init(state: .setupRequired, needsSystemSettings: true, canConnect: false))
+        )
+    }
+
+    func testRegisterReturnsFailureWhenSystemDoesNotRecordItem() {
+        let sut = HelperRegistration(
+            serviceStatus: { .notFound },
+            registerService: { throw StubServiceError.operationNotPermitted },
+            unregisterService: {}
+        )
+
+        XCTAssertEqual(
+            sut.register(),
+            .failure(.registrationFailed("The privileged helper could not be registered."))
+        )
+    }
+}
+
+private enum StubServiceError: Error {
+    case operationNotPermitted
 }
