@@ -4,40 +4,40 @@ import XCTest
 final class MenuPresentationTests: XCTestCase {
     func testSetupRequiredPresentation() {
         let presentation = MenuPresentation(state: .setupRequired)
-        XCTAssertEqual(presentation.statusTitle, "Insomnia: Setup Required")
-        XCTAssertEqual(presentation.primaryActionTitle, "Set Up Insomnia…")
-        XCTAssertEqual(presentation.symbolName, "moon.zzz")
+        XCTAssertEqual(presentation.statusTitle, "Vampire: Setup Required")
+        XCTAssertEqual(presentation.primaryActionTitle, "Set Up Vampire…")
+        XCTAssertEqual(presentation.icon, .vampire(isAwake: false))
         XCTAssertTrue(presentation.primaryEnabled)
     }
 
     func testUnsupportedPresentation() {
         let presentation = MenuPresentation(state: .unsupported)
-        XCTAssertEqual(presentation.statusTitle, "Insomnia: Unsupported Mac")
-        XCTAssertEqual(presentation.symbolName, "exclamationmark.triangle")
+        XCTAssertEqual(presentation.statusTitle, "Vampire: Unsupported Mac")
+        XCTAssertEqual(presentation.icon, .systemSymbol("exclamationmark.triangle"))
         XCTAssertFalse(presentation.primaryEnabled)
     }
 
     func testOffPresentation() {
         let presentation = MenuPresentation(state: .off)
-        XCTAssertEqual(presentation.statusTitle, "Insomnia: Off")
-        XCTAssertEqual(presentation.primaryActionTitle, "Turn Insomnia On")
-        XCTAssertEqual(presentation.symbolName, "moon.zzz")
+        XCTAssertEqual(presentation.statusTitle, "Vampire: Off")
+        XCTAssertEqual(presentation.primaryActionTitle, "Wake Vampire")
+        XCTAssertEqual(presentation.icon, .vampire(isAwake: false))
         XCTAssertTrue(presentation.primaryEnabled)
     }
 
     func testOnPresentation() {
         let presentation = MenuPresentation(state: .on)
-        XCTAssertEqual(presentation.statusTitle, "Insomnia: On")
-        XCTAssertEqual(presentation.primaryActionTitle, "Restore Lullaby")
-        XCTAssertEqual(presentation.symbolName, "moon.zzz.fill")
+        XCTAssertEqual(presentation.statusTitle, "Vampire: On")
+        XCTAssertEqual(presentation.primaryActionTitle, "Turn Off Vampire")
+        XCTAssertEqual(presentation.icon, .vampire(isAwake: true))
         XCTAssertTrue(presentation.primaryEnabled)
     }
 
     func testErrorPresentation() {
         let presentation = MenuPresentation(state: .error("failed"))
-        XCTAssertEqual(presentation.statusTitle, "Insomnia: Error")
-        XCTAssertEqual(presentation.primaryActionTitle, "Retry Restore Lullaby")
-        XCTAssertEqual(presentation.symbolName, "exclamationmark.triangle.fill")
+        XCTAssertEqual(presentation.statusTitle, "Vampire: Error")
+        XCTAssertEqual(presentation.primaryActionTitle, "Retry Turning Off Vampire")
+        XCTAssertEqual(presentation.icon, .systemSymbol("exclamationmark.triangle.fill"))
         XCTAssertEqual(presentation.errorDetail, "failed")
         XCTAssertTrue(presentation.primaryEnabled)
     }

@@ -5,9 +5,9 @@ date: 2026-08-28
 tags: [project, internal-tool, macos, app-design]
 ---
 
-# Insomnia Menu Bar App Design
+# Vampire Menu Bar App Design
 
-**Status:** Approved by Grant on 2026-08-31; portable-hardware amendment approved on 2026-08-31
+**Status:** Approved by Grant on 2026-08-31; portable-hardware and Vampire brand amendments approved on 2026-08-31
 **Owner:** Grant Isom  
 **Minimum OS:** macOS 13 Ventura  
 **Distribution:** Direct, outside the Mac App Store  
@@ -22,7 +22,15 @@ sudo pmset -a disablesleep 1
 sudo pmset -a disablesleep 0
 ```
 
-The app must prevent lid-close sleep while Insomnia is On, restore normal lid-close sleep when it is Off, and require privileged approval only during initial setup.
+The app must prevent lid-close sleep while Vampire is On, restore normal lid-close sleep when it is Off, and require privileged approval only during initial setup.
+
+## Brand Identity
+
+- The user-facing product name is **Vampire**.
+- The app icon is a friendly moon-vampire tucked into a stylized coffin, using a dark purple palette and warm moon glow.
+- The menu-bar image is a monochrome coffin-and-crescent template mark suitable for light and dark menu bars.
+- Menu actions use `Wake Vampire` and `Turn Off Vampire`; the former Lullaby wording is removed.
+- Existing bundle IDs, helper labels, XPC names, target/module names, and recovery paths containing `insomnia` remain stable to preserve the approved helper security contract and macOS approval state.
 
 ## Success Criteria
 
@@ -64,14 +72,14 @@ Rejected. These prevent idle sleep but do not reproduce the required lid-close b
 
 The system has three narrowly scoped components:
 
-1. **Insomnia app:** owns the menu-bar interface, setup flow, state presentation, Launch at Login preference, and one live XPC session.
-2. **Insomnia helper:** a root launch daemon registered with `SMAppService`. It authenticates the connecting app, owns recovery, and exposes only status, enable, and disable operations.
+1. **Vampire app:** owns the menu-bar interface, setup flow, state presentation, Launch at Login preference, and one live XPC session.
+2. **Privileged helper:** a root launch daemon registered with `SMAppService`. It retains its stable Insomnia-era identifiers, authenticates the connecting app, owns recovery, and exposes only status, enable, and disable operations.
 3. **Power-setting adapter:** invokes `/usr/bin/pmset` directly with fixed arguments. It never invokes a shell or accepts caller-supplied executable paths or arguments.
 
 ```mermaid
 flowchart LR
-    User[Menu-bar user] --> App[Insomnia App\nAppKit status item]
-    App -->|Authenticated XPC| Helper[Insomnia Helper\nSMAppService launch daemon]
+    User[Menu-bar user] --> App[Vampire App\nAppKit status item]
+    App -->|Authenticated XPC| Helper[Privileged Helper\nSMAppService launch daemon]
     Helper -->|Fixed arguments only| PMSet[/usr/bin/pmset/]
     Helper --> Marker[Root-owned recovery marker]
     App --> Login[SMAppService Launch at Login]
@@ -86,7 +94,7 @@ flowchart LR
 
 ## Privileged Setup
 
-1. The user moves Insomnia to `/Applications` and opens it.
+1. The user moves Vampire to `/Applications` and opens it.
 2. The app explains that macOS approval is required once to change lid-close sleep behavior.
 3. The app registers its bundled launch daemon with `SMAppService`.
 4. If macOS reports that approval is required, the app offers a button that opens the relevant System Settings location.
@@ -156,7 +164,7 @@ The app reconnects to the helper's launchd-managed Mach service. During startup,
 
 ### Mac Restart
 
-The registered daemon runs during startup and restores `disablesleep 0` before accepting connections. It then removes any stale recovery marker. Insomnia never resumes On automatically after login.
+The registered daemon runs during startup and restores `disablesleep 0` before accepting connections. It then removes any stale recovery marker. Vampire never resumes On automatically after login.
 
 ### Recovery Failure
 
@@ -164,32 +172,32 @@ If `pmset -a disablesleep 0` fails, the helper retains the marker and emits an e
 
 ## Menu-Bar Experience
 
-Insomnia uses an `NSStatusItem` and `NSMenu`, with `LSUIElement` enabled so it does not appear in the Dock.
+Vampire uses an `NSStatusItem` and `NSMenu`, with `LSUIElement` enabled so it does not appear in the Dock.
 
 ```text
-Insomnia: Off
-Turn Insomnia On
+Vampire: Off
+Wake Vampire
 ────────────────
 Launch at Login        ✓/off
 Setup Status…
-About Insomnia
+About Vampire
 Quit
 ```
 
-When active, the status line reads `Insomnia: On` and the main action reads `Restore Lullaby`. The menu-bar image uses the built-in `moon.zzz` SF Symbol in Off and Setup Required states and its filled variant when On. Error adds the system warning badge treatment and a concise explanation in the menu.
+When active, the status line reads `Vampire: On` and the main action reads `Turn Off Vampire`. The menu-bar image uses the custom coffin-and-crescent template mark, with distinct Off and On treatments. Error adds the system warning badge treatment and a concise explanation in the menu.
 
 First launch uses a single native explanatory alert before beginning setup. Setup Required, Unsupported, and Error states never visually resemble On.
 
 ## Launch at Login
 
-Launch at Login uses `SMAppService.mainApp`. It appears as a checkbox in the menu, defaults to Off, and reflects the operating system's actual registration status. Launching at login starts the app in Off and never enables Insomnia automatically.
+Launch at Login uses `SMAppService.mainApp`. It appears as a checkbox in the menu, defaults to Off, and reflects the operating system's actual registration status. Launching at login starts the app in Off and never enables Vampire automatically.
 
 ## Error Model
 
 Internal errors are mapped to actionable user-facing categories:
 
 - **Setup required:** register or approve the helper.
-- **Unsupported Mac:** explain that Insomnia requires a MacBook with a built-in lid.
+- **Unsupported Mac:** explain that Vampire requires a MacBook with a built-in lid.
 - **Helper unavailable:** retry the connection or open Setup Status.
 - **Unauthorized client:** treat as a security failure and remain Off.
 - **Command failed:** show the `pmset` exit status without exposing unrelated process data.
@@ -221,7 +229,7 @@ The Obsidian project keeps product context, decisions, and planning. Generated b
 - Validate nested code signatures before notarization.
 - Submit the disk image through Apple's current notary service and staple the ticket.
 - Verify the final disk image with `codesign`, `spctl`, and `stapler` before sharing.
-- Distribute a disk image containing Insomnia and an Applications-folder shortcut.
+- Distribute a disk image containing Vampire and an Applications-folder shortcut.
 
 The current Mac has Command Line Tools but not full Xcode. Full Xcode is an implementation prerequisite for creating, archiving, signing, and notarizing the release.
 
@@ -238,7 +246,7 @@ The current Mac has Command Line Tools but not full Xcode. Full Xcode is an impl
 - XPC invalidation triggers Off recovery when the marker exists.
 - Helper startup restores Off before accepting requests, with and without a stale marker.
 - Failed recovery retains the marker.
-- Launch at Login reflects actual `SMAppService` status and never activates Insomnia.
+- Launch at Login reflects actual `SMAppService` status and never activates Vampire.
 - Unauthorized XPC clients are rejected.
 
 Normal tests use a fake command adapter and a temporary recovery-marker store. They never modify the development Mac's real power settings.
@@ -250,7 +258,7 @@ Normal tests use a fake command adapter and a temporary recovery-marker store. T
 - Helper registration, approval-state detection, enable, disable, and removal work from `/Applications`.
 - Killing the app restores Off.
 - Killing the helper restores Off after `launchd` relaunches it.
-- Restarting the Mac with Insomnia On restores Off before the next login session uses the app.
+- Restarting the Mac with Vampire On restores Off before the next login session uses the app.
 
 ### Manual release checks
 

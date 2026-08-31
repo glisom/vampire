@@ -17,10 +17,10 @@ protocol AppPresenting: AnyObject {
 final class SetupPresenter: AppPresenting {
     func presentSetupRequired(needsSystemSettings: Bool) {
         let alert = NSAlert()
-        alert.messageText = "Set Up Insomnia"
+        alert.messageText = "Set Up Vampire"
         alert.informativeText = needsSystemSettings
-            ? "Approve Insomnia in Login Items so it can change lid-close sleep behavior."
-            : "Insomnia needs one-time macOS approval to change lid-close sleep behavior."
+            ? "Approve Vampire in Login Items so it can change lid-close sleep behavior."
+            : "Vampire needs one-time macOS approval to change lid-close sleep behavior."
         alert.addButton(withTitle: needsSystemSettings ? "Open System Settings" : "Continue")
         if alert.runModal() == .alertFirstButtonReturn, needsSystemSettings {
             SMAppService.openSystemSettingsLoginItems()
@@ -33,7 +33,7 @@ final class SetupPresenter: AppPresenting {
         removeHelper: @escaping @MainActor () -> Void
     ) {
         let alert = NSAlert()
-        alert.messageText = "Insomnia Setup Status"
+        alert.messageText = "Vampire Setup Status"
         var action: (() -> Void)?
         switch assessment.state {
         case .setupRequired:
@@ -49,7 +49,7 @@ final class SetupPresenter: AppPresenting {
             alert.addButton(withTitle: "Remove Helper")
             action = removeHelper
         case .unsupported:
-            alert.informativeText = "Insomnia requires a MacBook with a built-in lid."
+            alert.informativeText = "Vampire requires a MacBook with a built-in lid."
         case let .error(message):
             alert.informativeText = message
             alert.addButton(withTitle: "Retry Registration")
@@ -64,7 +64,7 @@ final class SetupPresenter: AppPresenting {
     func presentError(_ message: String) {
         let alert = NSAlert()
         alert.alertStyle = .warning
-        alert.messageText = "Insomnia Error"
+        alert.messageText = "Vampire Error"
         alert.informativeText = message
         alert.runModal()
     }

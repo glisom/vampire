@@ -1,8 +1,8 @@
-# Insomnia
+# Vampire
 
-Insomnia is a native macOS menu-bar utility that changes lid-close sleep behavior. When On, it applies `pmset -a disablesleep 1`; Restore Lullaby applies `pmset -a disablesleep 0`.
+Vampire is a native macOS menu-bar utility that changes lid-close sleep behavior. Wake Vampire applies `pmset -a disablesleep 1`; Turn Off Vampire applies `pmset -a disablesleep 0`.
 
-Insomnia changes lid-close sleep only. It does not prevent ordinary idle sleep, display sleep, or screen locking, and it does not replace Lungo.
+Vampire changes lid-close sleep only. It does not prevent ordinary idle sleep, display sleep, or screen locking, and it does not replace Lungo.
 
 ## Requirements
 
@@ -14,39 +14,39 @@ The app has no Dock icon, main window, networking, analytics, updater, or third-
 
 ## Installation and first launch
 
-1. Open `Insomnia.dmg` and drag Insomnia to Applications.
-2. Launch `/Applications/Insomnia.app`.
+1. Open `Vampire.dmg` and drag Vampire to Applications.
+2. Launch `/Applications/Vampire.app`.
 3. Continue through the one-time helper setup prompt.
-4. If macOS requires approval, choose Open System Settings and enable Insomnia under Login Items.
+4. If macOS requires approval, choose Open System Settings and enable Vampire under Login Items.
 
 Later On and Off changes should not request an administrator password.
 
-## Using Insomnia
+## Using Vampire
 
-Choose Turn Insomnia On to prevent lid-close sleep. The menu does not report On until the helper successfully changes and verifies the setting.
+Choose Wake Vampire to prevent lid-close sleep. The menu does not report On until the helper successfully changes and verifies the setting.
 
-Choose Restore Lullaby to restore normal lid-close sleep. Normal Quit also restores Off and waits for acknowledgement before exiting. A helper restart, app disconnect, or Mac restart likewise normalizes the setting to Off.
+Choose Turn Off Vampire to restore normal lid-close sleep. Normal Quit also restores Off and waits for acknowledgement before exiting. A helper restart, app disconnect, or Mac restart likewise normalizes the setting to Off.
 
 ## Launch at Login
 
-Launch at Login mirrors the registration state managed by macOS. It defaults Off. Starting at login never turns Insomnia On automatically.
+Launch at Login mirrors the registration state managed by macOS. It defaults Off. Starting at login never turns Vampire On automatically.
 
 ## Safe helper removal
 
-Open Setup Status and choose Remove Helper. Insomnia first restores and verifies Off, then unregisters the helper. If restoration fails, the helper remains registered so recovery can be retried.
+Open Setup Status and choose Remove Helper. Vampire first restores and verifies Off, then unregisters the helper. If restoration fails, the helper remains registered so recovery can be retried.
 
 ## Troubleshooting
 
-- Setup Required: open Setup Status and retry registration or approve Insomnia in System Settings.
-- Unsupported Mac: Insomnia requires a MacBook with a built-in internal battery. Legacy `MacBook*` and modern `Mac*` model identifiers are both supported.
-- Error: choose Retry Restore Lullaby. Insomnia will not claim Off while recovery is unresolved.
+- Setup Required: open Setup Status and retry registration or approve Vampire in System Settings.
+- Unsupported Mac: Vampire requires a MacBook with a built-in internal battery. Legacy `MacBook*` and modern `Mac*` model identifiers are both supported.
+- Error: choose Retry Turning Off Vampire. Vampire will not claim Off while recovery is unresolved.
 - Helper unavailable: confirm the app is installed in `/Applications`, then retry Setup Status.
 
 For emergency manual restoration, run `sudo /usr/bin/pmset -a disablesleep 0`.
 
 ## Privacy
 
-Insomnia has no networking, telemetry, or analytics. Unified logs exclude passwords, usernames, file contents, and device identifiers.
+Vampire has no networking, telemetry, or analytics. Unified logs exclude passwords, usernames, file contents, and device identifiers.
 
 ## Development
 
@@ -72,9 +72,11 @@ Real helper registration, real `pmset`, restart, and lid-close testing require e
 Use a Developer ID Application identity and an existing `notarytool` Keychain profile:
 
 ```bash
-INSOMNIA_SIGNING_IDENTITY='Developer ID Application: …' scripts/build-release.sh
-INSOMNIA_NOTARY_PROFILE='insomnia-notary' scripts/notarize.sh build/release/Insomnia.dmg
-scripts/verify-release.sh build/release/Insomnia.dmg
+VAMPIRE_SIGNING_IDENTITY='Developer ID Application: …' scripts/build-release.sh
+VAMPIRE_NOTARY_PROFILE='vampire-notary' scripts/notarize.sh build/release/Vampire.dmg
+scripts/verify-release.sh build/release/Vampire.dmg
 ```
 
 Credentials, certificate material, Apple IDs, and Keychain profiles must never be committed.
+
+The Xcode targets, bundle identifier `co.groundwork-ai.insomnia`, helper label, and recovery path retain their original internal names so existing helper approval and the signed XPC contract remain stable.

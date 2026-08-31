@@ -3,7 +3,7 @@
 Copy the prompt below into a new Codex task opened at `/Users/grantisom/Developer/insomnia`.
 
 ```text
-Implement the Insomnia macOS menu-bar app in this repository.
+Implement the Vampire macOS menu-bar app in this repository.
 
 Before touching code:
 
@@ -15,8 +15,7 @@ Before touching code:
 
 Important safety boundary: do not register the real helper, request administrator approval, mutate the real pmset setting, restart the Mac, or run a lid-close test until the plan reaches the privileged acceptance step and you have shown me the exact action and received explicit approval. Unit and ordinary integration tests must use fakes and temporary files. After any approved privileged test attempt, restore `sudo /usr/bin/pmset -a disablesleep 0`, including after failures.
 
-Keep the app minimal: AppKit menu bar only, no Dock icon, no main window, no SwiftUI, no third-party runtime dependencies, no networking, no analytics, no updater, and no ordinary idle-sleep features. The required behavior is only the exact lid-close setting controlled by the existing Insomnia and Lullaby aliases.
+Keep the app minimal: AppKit menu bar only, no Dock icon, no main window, no SwiftUI, no third-party runtime dependencies, no networking, no analytics, no updater, and no ordinary idle-sleep features. The required behavior is only the exact lid-close setting exposed as Wake Vampire and Turn Off Vampire. Preserve the existing Insomnia-era bundle ID, helper label, target names, and recovery path.
 
 Work through the entire plan, keep its checklist updated, run verification proportional to each task, and continue until the next genuine user-approval boundary or external prerequisite blocks progress.
 ```
-

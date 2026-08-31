@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 /path/to/Insomnia.dmg" >&2
+  echo "Usage: $0 /path/to/Vampire.dmg" >&2
 }
 
 if [[ $# -ne 1 || -z "$1" ]]; then
@@ -16,7 +16,7 @@ if [[ ! -f "$dmg" ]]; then
   exit 66
 fi
 
-mountpoint="$(mktemp -d "${TMPDIR:-/tmp}/insomnia-verify.XXXXXX")"
+mountpoint="$(mktemp -d "${TMPDIR:-/tmp}/vampire-verify.XXXXXX")"
 mounted=false
 cleanup() {
   if [[ "$mounted" == true ]]; then
@@ -29,9 +29,9 @@ trap cleanup EXIT
 /usr/bin/hdiutil attach -readonly -nobrowse -mountpoint "$mountpoint" "$dmg" >/dev/null
 mounted=true
 
-app="$mountpoint/Insomnia.app"
+app="$mountpoint/Vampire.app"
 helper="$app/Contents/MacOS/InsomniaHelper"
-main_executable="$app/Contents/MacOS/Insomnia"
+main_executable="$app/Contents/MacOS/Vampire"
 
 /usr/bin/codesign --verify --deep --strict --verbose=2 "$app"
 /usr/bin/codesign --verify --strict --verbose=2 "$helper"

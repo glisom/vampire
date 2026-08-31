@@ -1,8 +1,8 @@
-# Insomnia Repository Instructions
+# Vampire Repository Instructions
 
 ## Product Boundary
 
-Insomnia is a native macOS menu-bar utility that changes lid-close sleep behavior through `pmset -a disablesleep`. It does not prevent ordinary idle sleep and does not replace Lungo.
+Vampire is a native macOS menu-bar utility that changes lid-close sleep behavior through `pmset -a disablesleep`. It does not prevent ordinary idle sleep and does not replace Lungo. Its Insomnia-era bundle ID, helper label, target names, and recovery path stay stable for compatibility.
 
 ## Canonical Documents
 
@@ -30,4 +30,3 @@ The approved spec governs product behavior. The implementation plan governs sequ
 - Use TDD and make the commits specified by the implementation plan.
 - Keep files focused by the responsibilities in the plan's File Map.
 - Do not expand scope with timers, schedules, shortcuts, updates, telemetry, or automatic activation.
-

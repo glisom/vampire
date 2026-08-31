@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 /path/to/Insomnia.app" >&2
+  echo "Usage: $0 /path/to/Vampire.app" >&2
 }
 
 if [[ $# -ne 1 || -z "$1" ]]; then
@@ -16,7 +16,7 @@ helper="$app/Contents/MacOS/InsomniaHelper"
 daemon_plist="$helper_directory/co.groundwork-ai.insomnia.helper.plist"
 
 if [[ ! -d "$app" || ! -x "$helper" || ! -f "$daemon_plist" ]]; then
-  echo "Invalid Insomnia app bundle: $app" >&2
+  echo "Invalid Vampire app bundle: $app" >&2
   exit 66
 fi
 

@@ -18,6 +18,20 @@ final class BundleLayoutTests: XCTestCase {
         let app = try builtAppURL()
         let info = try plist(at: app.appendingPathComponent("Contents/Info.plist"))
         XCTAssertEqual(info["LSUIElement"] as? Bool, true)
+        XCTAssertEqual(info["CFBundleDisplayName"] as? String, "Vampire")
+        XCTAssertEqual(info["CFBundleName"] as? String, "Vampire")
+        XCTAssertEqual(info["CFBundleExecutable"] as? String, "Vampire")
+        XCTAssertEqual(info["CFBundleIdentifier"] as? String, "co.groundwork-ai.insomnia")
+        XCTAssertEqual(info["CFBundleIconName"] as? String, "AppIcon")
+        XCTAssertEqual(
+            info["LSApplicationCategoryType"] as? String,
+            "public.app-category.utilities"
+        )
+        XCTAssertTrue(
+            FileManager.default.fileExists(
+                atPath: app.appendingPathComponent("Contents/Resources/Assets.car").path
+            )
+        )
 
         let daemon = try plist(
             at: app.appendingPathComponent(
@@ -38,7 +52,7 @@ final class BundleLayoutTests: XCTestCase {
 func builtAppURL() throws -> URL {
     let url: URL
     if let products = ProcessInfo.processInfo.environment["BUILT_PRODUCTS_DIR"] {
-        url = URL(fileURLWithPath: products).appendingPathComponent("Insomnia.app", isDirectory: true)
+        url = URL(fileURLWithPath: products).appendingPathComponent("Vampire.app", isDirectory: true)
     } else {
         url = Bundle.main.bundleURL
     }

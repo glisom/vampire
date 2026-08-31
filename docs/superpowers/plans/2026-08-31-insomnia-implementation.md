@@ -979,6 +979,61 @@ git commit -m "release: add notarized direct distribution workflow"
 
 ---
 
+### Task 11: Vampire User-Facing Rebrand and Icon
+
+**Approved amendment:** Grant approved the A+C moon-vampire-in-a-coffin direction on 2026-08-31. Existing bundle IDs, helper labels, XPC names, target/module names, and recovery paths remain stable.
+
+**Files:**
+- Modify: `InsomniaTests/MenuPresentationTests.swift`
+- Modify: `InsomniaIntegrationTests/BundleLayoutTests.swift`
+- Modify: `Insomnia/Sources/MenuController.swift`
+- Modify: `Insomnia/Sources/SetupPresenter.swift`
+- Modify: `Insomnia/Sources/AppModel.swift`
+- Create: `Insomnia/Resources/Assets.xcassets/AppIcon.appiconset/*`
+- Modify: `Config/Info.plist`
+- Modify: `project.yml`
+- Modify: `scripts/*.sh`
+- Modify: `README.md`
+- Modify: `docs/release-checklist.md`
+- Modify: `.gitignore`
+
+**Interfaces:**
+- Consumes: the existing stable helper security contract and the approved A+C visual direction.
+- Produces: `Vampire.app`, `Vampire.dmg`, playful Vampire menu copy, a custom template menu-bar mark, and a complete macOS app-icon asset catalog.
+
+- [x] **Step 1: Write failing presentation and bundle-branding tests**
+
+Assert `Vampire: Setup Required`, `Set Up Vampire…`, `Vampire: Off`, `Wake Vampire`, `Vampire: On`, `Turn Off Vampire`, and the Vampire error/retry wording. Assert the built product is `Vampire.app`, its display name is Vampire, its icon resource is present, and the stable bundle/helper identifiers are unchanged.
+
+- [x] **Step 2: Run focused tests and verify failure**
+
+Expected: FAIL because the existing product and presentation still use Insomnia/Lullaby and have no app-icon asset catalog.
+
+- [x] **Step 3: Implement user-facing naming and menu icon**
+
+Keep internal Swift symbols and security identifiers stable. Set the app product/display name to Vampire, update alerts and menu copy, and render a custom monochrome coffin-and-crescent `NSImage` with `isTemplate = true`. Error states remain unmistakable and use the system warning symbol.
+
+- [x] **Step 4: Generate and package the A+C app icon**
+
+Generate one polished 1024-by-1024 source image with no text or watermark. Inspect it, create every macOS app-icon size in the asset catalog, and configure `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`.
+
+- [x] **Step 5: Update release tooling and documentation**
+
+Produce `build/release/Vampire.dmg`, use a Vampire volume name, and update user-facing documentation and checklist copy. Technical references to the stable `co.groundwork-ai.insomnia` identifiers and internal Xcode schemes remain explicit where relevant.
+
+- [x] **Step 6: Run all nonprivileged verification and build the signed candidate**
+
+Run all three test schemes, script syntax/smoke checks, bundle/signature checks, and a universal signed release build. Do not register, unregister, launch, or exercise the real helper and do not change real power settings.
+
+- [x] **Step 7: Commit the rebrand**
+
+```bash
+git add .gitignore Config Insomnia InsomniaTests InsomniaIntegrationTests project.yml README.md docs scripts
+git commit -m "feat: rebrand Insomnia as Vampire"
+```
+
+---
+
 ## Final Verification
 
 - [ ] Confirm `git status --short` is empty.

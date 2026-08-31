@@ -1,22 +1,27 @@
 import AppKit
 
+enum MenuIcon: Equatable {
+    case vampire(isAwake: Bool)
+    case systemSymbol(String)
+}
+
 struct MenuPresentation: Equatable {
     let statusTitle: String
     let primaryActionTitle: String
-    let symbolName: String
+    let icon: MenuIcon
     let primaryEnabled: Bool
     let errorDetail: String?
 
     private init(
         statusTitle: String,
         primaryActionTitle: String,
-        symbolName: String,
+        icon: MenuIcon,
         primaryEnabled: Bool,
         errorDetail: String?
     ) {
         self.statusTitle = statusTitle
         self.primaryActionTitle = primaryActionTitle
-        self.symbolName = symbolName
+        self.icon = icon
         self.primaryEnabled = primaryEnabled
         self.errorDetail = errorDetail
     }
@@ -25,41 +30,41 @@ struct MenuPresentation: Equatable {
         switch state {
         case .setupRequired:
             self.init(
-                statusTitle: "Insomnia: Setup Required",
-                primaryActionTitle: "Set Up Insomnia…",
-                symbolName: "moon.zzz",
+                statusTitle: "Vampire: Setup Required",
+                primaryActionTitle: "Set Up Vampire…",
+                icon: .vampire(isAwake: false),
                 primaryEnabled: true,
                 errorDetail: nil
             )
         case .unsupported:
             self.init(
-                statusTitle: "Insomnia: Unsupported Mac",
-                primaryActionTitle: "Turn Insomnia On",
-                symbolName: "exclamationmark.triangle",
+                statusTitle: "Vampire: Unsupported Mac",
+                primaryActionTitle: "Wake Vampire",
+                icon: .systemSymbol("exclamationmark.triangle"),
                 primaryEnabled: false,
                 errorDetail: nil
             )
         case .off:
             self.init(
-                statusTitle: "Insomnia: Off",
-                primaryActionTitle: "Turn Insomnia On",
-                symbolName: "moon.zzz",
+                statusTitle: "Vampire: Off",
+                primaryActionTitle: "Wake Vampire",
+                icon: .vampire(isAwake: false),
                 primaryEnabled: true,
                 errorDetail: nil
             )
         case .on:
             self.init(
-                statusTitle: "Insomnia: On",
-                primaryActionTitle: "Restore Lullaby",
-                symbolName: "moon.zzz.fill",
+                statusTitle: "Vampire: On",
+                primaryActionTitle: "Turn Off Vampire",
+                icon: .vampire(isAwake: true),
                 primaryEnabled: true,
                 errorDetail: nil
             )
         case let .error(message):
             self.init(
-                statusTitle: "Insomnia: Error",
-                primaryActionTitle: "Retry Restore Lullaby",
-                symbolName: "exclamationmark.triangle.fill",
+                statusTitle: "Vampire: Error",
+                primaryActionTitle: "Retry Turning Off Vampire",
+                icon: .systemSymbol("exclamationmark.triangle.fill"),
                 primaryEnabled: true,
                 errorDetail: message
             )
@@ -83,10 +88,8 @@ final class MenuController: NSObject {
     }
 
     private func render(_ presentation: MenuPresentation) {
-        statusItem.button?.image = NSImage(
-            systemSymbolName: presentation.symbolName,
-            accessibilityDescription: presentation.statusTitle
-        )
+        statusItem.button?.image = StatusIconRenderer.image(for: presentation.icon)
+        statusItem.button?.setAccessibilityLabel(presentation.statusTitle)
 
         let menu = NSMenu()
         let status = NSMenuItem(title: presentation.statusTitle, action: nil, keyEquivalent: "")
@@ -115,7 +118,7 @@ final class MenuController: NSObject {
         setup.target = self
         menu.addItem(setup)
 
-        let about = NSMenuItem(title: "About Insomnia", action: #selector(showAbout), keyEquivalent: "")
+        let about = NSMenuItem(title: "About Vampire", action: #selector(showAbout), keyEquivalent: "")
         about.target = self
         menu.addItem(about)
 
@@ -130,4 +133,50 @@ final class MenuController: NSObject {
     @objc private func showSetupStatus() { model.showSetupStatus() }
     @objc private func showAbout() { model.showAbout() }
     @objc private func quit() { model.quit() }
+}
+
+private enum StatusIconRenderer {
+    static func image(for icon: MenuIcon) -> NSImage? {
+        switch icon {
+        case let .systemSymbol(name):
+            return NSImage(systemSymbolName: name, accessibilityDescription: nil)
+        case let .vampire(isAwake):
+            return vampireImage(isAwake: isAwake)
+        }
+    }
+
+    private static func vampireImage(isAwake: Bool) -> NSImage {
+        let image = NSImage(size: NSSize(width: 18, height: 18), flipped: false) { _ in
+            let coffin = NSBezierPath()
+            coffin.move(to: NSPoint(x: 6, y: 1.5))
+            coffin.line(to: NSPoint(x: 12, y: 1.5))
+            coffin.line(to: NSPoint(x: 15, y: 5.5))
+            coffin.line(to: NSPoint(x: 13, y: 16.5))
+            coffin.line(to: NSPoint(x: 5, y: 16.5))
+            coffin.line(to: NSPoint(x: 3, y: 5.5))
+            coffin.close()
+
+            NSColor.black.set()
+            if isAwake {
+                coffin.fill()
+            } else {
+                coffin.lineWidth = 1.4
+                coffin.lineJoinStyle = .round
+                coffin.stroke()
+            }
+
+            let crescent = NSBezierPath()
+            crescent.windingRule = .evenOdd
+            crescent.appendOval(in: NSRect(x: 6, y: 6, width: 6, height: 7))
+            crescent.appendOval(in: NSRect(x: 8, y: 7, width: 5, height: 6))
+
+            if isAwake {
+                NSGraphicsContext.current?.compositingOperation = .destinationOut
+            }
+            crescent.fill()
+            return true
+        }
+        image.isTemplate = true
+        return image
+    }
 }

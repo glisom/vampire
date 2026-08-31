@@ -175,7 +175,7 @@ final class AppModel {
             } else {
                 self.state = Self.errorState(
                     from: response,
-                    fallback: enabled ? "Insomnia could not be enabled." : "Normal lid-close sleep could not be restored."
+                    fallback: enabled ? "Vampire could not be awakened." : "Vampire could not be turned off."
                 )
                 if case let .error(message) = self.state {
                     self.presenter.presentError(message)
