@@ -693,7 +693,7 @@ git commit -m "feat: expose helper through signed XPC service"
 - Consumes: `InsomniaHelperXPC`, `AppConstants.helperLabel`, and `AppConstants.helperPlistName`.
 - Produces: `AppState`, `HelperRegistering`, and `HelperClientProtocol` for `AppModel`.
 
-- [ ] **Step 1: Write failing hardware and state tests**
+- [x] **Step 1: Write failing hardware and state tests**
 
 Define supported identifiers as strings beginning with `MacBook`. Test `MacBookPro18,3` and `MacBookAir10,1` as supported; `Mac14,2`, `iMac21,1`, and empty strings as Unsupported.
 
@@ -709,15 +709,15 @@ enum AppState: Equatable {
 }
 ```
 
-- [ ] **Step 2: Write failing registration tests**
+- [x] **Step 2: Write failing registration tests**
 
 Wrap `SMAppService.Status` in a local enum so tests do not register anything. Verify `.notRegistered` maps to Setup Required, `.requiresApproval` maps to Setup Required plus `needsSystemSettings = true`, `.enabled` allows XPC connection, and `.notFound` maps to a clear configuration error.
 
-- [ ] **Step 3: Write failing client tests**
+- [x] **Step 3: Write failing client tests**
 
 Using a fake XPC transport, verify status raw values map to AppState, connection errors map to Error, an unknown helper state maps to Error, and no callback is delivered off the main actor.
 
-- [ ] **Step 4: Implement adapters**
+- [x] **Step 4: Implement adapters**
 
 `HelperRegistration` owns `SMAppService.daemon(plistName: AppConstants.helperPlistName)`. Its register and unregister methods surface typed results and never modify the power setting themselves.
 
@@ -729,11 +729,11 @@ NSXPCConnection(machServiceName: AppConstants.helperLabel, options: .privileged)
 
 Assign `remoteObjectInterface`, interruption and invalidation handlers, then activate. All public completion handlers hop to `MainActor`. Never issue On until helper registration status is enabled and hardware is supported.
 
-- [ ] **Step 5: Run app tests**
+- [x] **Step 5: Run app tests**
 
 Expected: PASS without any daemon registration or `pmset` invocation.
 
-- [ ] **Step 6: Commit app infrastructure**
+- [x] **Step 6: Commit app infrastructure**
 
 ```bash
 git add Insomnia/Sources InsomniaTests
