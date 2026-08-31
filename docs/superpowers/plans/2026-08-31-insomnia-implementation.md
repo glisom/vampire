@@ -321,7 +321,7 @@ git commit -m "build: scaffold Insomnia app and helper targets"
 - Consumes: `AppConstants.helperVersion` from Task 1.
 - Produces: `HelperState`, `HelperErrorCode`, and `InsomniaHelperXPC` used by the helper service and app client.
 
-- [ ] **Step 1: Write failing contract tests**
+- [x] **Step 1: Write failing contract tests**
 
 Test exact raw values and round trips:
 
@@ -337,7 +337,7 @@ func testUnknownStateFallsBackToError() {
 }
 ```
 
-- [ ] **Step 2: Run the focused test and verify failure**
+- [x] **Step 2: Run the focused test and verify failure**
 
 Run:
 
@@ -347,7 +347,7 @@ xcodebuild -project Insomnia.xcodeproj -scheme InsomniaHelperTests -destination 
 
 Expected: FAIL because `HelperState` is undefined.
 
-- [ ] **Step 3: Implement stable XPC values and protocol**
+- [x] **Step 3: Implement stable XPC values and protocol**
 
 Use:
 
@@ -379,11 +379,11 @@ public enum HelperErrorCode: Int {
 
 The `getStatus` reply is state raw value, helper version, error raw value, and optional message. The `setEnabled` reply is state raw value, error raw value, and optional message.
 
-- [ ] **Step 4: Run shared contract tests**
+- [x] **Step 4: Run shared contract tests**
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit the contract**
+- [x] **Step 5: Commit the contract**
 
 ```bash
 git add InsomniaShared InsomniaHelperTests/SharedContractTests.swift
