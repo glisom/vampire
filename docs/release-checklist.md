@@ -21,10 +21,10 @@ Record each result for the exact candidate being tested.
 
 Explicit approval is required immediately before this section. These checks temporarily change lid-close sleep. Do not run them unattended.
 
-- [ ] Copy the signed candidate to `/Applications/Vampire.app` and launch it.
+- [x] Copy the signed candidate to `/Applications/Vampire.app` and launch it.
 - [x] Complete the one-time macOS helper approval. (Approved on signed pre-final candidate; helper is enabled and running.)
-- [ ] Confirm later On and Off actions do not prompt again.
-- [ ] Turn On and confirm the app reports On only after helper acknowledgement.
+- [x] Confirm later On and Off actions do not prompt again.
+- [x] Turn On and confirm the app reports On only after helper acknowledgement.
 - [ ] Choose normal Quit while On and confirm Off before exit.
 - [ ] Turn On, force quit the app, and confirm the helper restores Off.
 - [ ] Turn On, kill the helper, and confirm launchd relaunch restores Off.
@@ -42,14 +42,14 @@ sudo /usr/bin/pmset -a disablesleep 0
 /usr/bin/pmset -g custom
 ```
 
-- [ ] Final physical power state is `disablesleep 0` on every reported profile, or the key is absent after a successful Off write on the supported MacBook.
+- [x] Final physical power state is `disablesleep 0` on every reported profile, or the key is absent after a successful Off write on the supported MacBook.
 
 ## Notarization and distribution
 
 - [x] Build `build/release/Vampire.dmg` with Developer ID Application identity for Team `3D247B7547`.
 - [ ] Notary service reports Accepted.
 - [ ] Stapler validates the DMG and contained app.
-- [ ] `codesign --verify --deep --strict` passes.
+- [x] `codesign --verify --deep --strict` passes.
 - [ ] Gatekeeper accepts the app with `spctl --assess --type execute`.
 - [ ] Test the DMG on a Mac that did not build it.
 - [ ] On a clean macOS 13-or-newer account, complete install and one-time approval.
@@ -60,7 +60,7 @@ sudo /usr/bin/pmset -a disablesleep 0
 | Check | Pass/Fail | Notes |
 |---|---|---|
 | Privileged helper setup | Pass | Service Management approval completed; daemon is enabled and running. Initial UI falsely reported failure while approval was pending; fixed by `7dbbb41`. |
-| Enable and disable |  |  |
+| Enable and disable | Pass | Signed `/Applications/Vampire.app` reused the approved helper without a new prompt. Wake Vampire reported On only after helper acknowledgement; Turn Off Vampire reported Off; the required explicit restore completed. |
 | Quit and crash recovery |  |  |
 | Helper relaunch recovery |  |  |
 | Restart recovery |  |  |
@@ -73,7 +73,9 @@ Privileged acceptance notes:
 
 - The user-facing Vampire rebrand preserves the existing bundle ID, helper label, XPC contract, and recovery path. The signed A+C icon candidate was built and verified without launching the app or changing real power settings.
 - Independent review found two helper-originated Insomnia error strings; both are Vampire-branded and covered by helper tests in `da85228`.
+- The signed Vampire candidate replaced `/Applications/Insomnia.app`; the previous app remains recoverably backed up at `build/release/acceptance-backup/Insomnia.app`.
+- An accidental ad-hoc Xcode Debug launch was rejected by the helper's Team-ID requirement before any `pmset` command ran. Relaunching the Developer-ID-signed `/Applications/Vampire.app` established the authenticated XPC connection and completed the On/Off test without renewed approval.
 - First signed launch exposed and resolved three pre-acceptance defects: modern MacBook detection (`289e073`), AppKit delegate bootstrapping (`492de3f`), and helper bundle layout (`f88db32`).
 - Service Management raw status 3 is the normal unregistered state, so Setup is now offered from that state (`a14ca8f`).
 - macOS recorded the helper and posted approval while synchronous registration reported not-yet-allowed; the final candidate handles that pending-approval race (`7dbbb41`).
-- Required manual `sudo /usr/bin/pmset -a disablesleep 0` restores were completed after the registration attempt and before final-candidate privileged testing.
+- Required manual `sudo /usr/bin/pmset -a disablesleep 0` restores were completed after the registration attempt, after the rejected Debug-client attempt, and after the signed candidate's successful On/Off test. Final `pmset -g custom` output omitted `disablesleep` from both battery and AC profiles.
