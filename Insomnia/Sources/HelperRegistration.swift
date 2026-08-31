@@ -21,18 +21,12 @@ struct HelperRegistrationAssessment: Equatable, Sendable {
 
     init(status: HelperServiceStatus) {
         switch status {
-        case .notRegistered:
+        case .notRegistered, .notFound:
             self.init(state: .setupRequired, needsSystemSettings: false, canConnect: false)
         case .requiresApproval:
             self.init(state: .setupRequired, needsSystemSettings: true, canConnect: false)
         case .enabled:
             self.init(state: .off, needsSystemSettings: false, canConnect: true)
-        case .notFound:
-            self.init(
-                state: .error("The bundled helper could not be found."),
-                needsSystemSettings: false,
-                canConnect: false
-            )
         }
     }
 }

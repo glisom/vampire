@@ -23,14 +23,10 @@ final class HelperRegistrationTests: XCTestCase {
         )
     }
 
-    func testNotFoundIsConfigurationError() {
+    func testNotFoundRequiresInitialSetup() {
         XCTAssertEqual(
             HelperRegistrationAssessment(status: .notFound),
-            .init(
-                state: .error("The bundled helper could not be found."),
-                needsSystemSettings: false,
-                canConnect: false
-            )
+            .init(state: .setupRequired, needsSystemSettings: false, canConnect: false)
         )
     }
 }

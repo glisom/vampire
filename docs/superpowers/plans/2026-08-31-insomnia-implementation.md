@@ -712,7 +712,7 @@ enum AppState: Equatable {
 
 - [x] **Step 2: Write failing registration tests**
 
-Wrap `SMAppService.Status` in a local enum so tests do not register anything. Verify `.notRegistered` maps to Setup Required, `.requiresApproval` maps to Setup Required plus `needsSystemSettings = true`, `.enabled` allows XPC connection, and `.notFound` maps to a clear configuration error.
+Wrap `SMAppService.Status` in a local enum so tests do not register anything. Verify `.notRegistered` maps to Setup Required, `.requiresApproval` maps to Setup Required plus `needsSystemSettings = true`, `.enabled` allows XPC connection, and `.notFound` also maps to Setup Required. Apple DTS documents raw status 3 as the normal initial state when the system does not yet know about the bundled service; registration must still be offered from that state.
 
 - [x] **Step 3: Write failing client tests**
 
