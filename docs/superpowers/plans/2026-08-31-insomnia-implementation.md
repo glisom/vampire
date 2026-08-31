@@ -149,12 +149,13 @@ targets:
         basedOnDependencyAnalysis: false
         script: |
           set -euo pipefail
-          destination="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchDaemons"
-          /bin/mkdir -p "$destination"
-          /usr/bin/install -m 755 "${BUILT_PRODUCTS_DIR}/InsomniaHelper" "$destination/InsomniaHelper"
-          /usr/bin/install -m 644 "${SRCROOT}/InsomniaHelper/Resources/co.groundwork-ai.insomnia.helper.plist" "$destination/co.groundwork-ai.insomnia.helper.plist"
+          helper_destination="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/MacOS"
+          plist_destination="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchDaemons"
+          /bin/mkdir -p "$helper_destination" "$plist_destination"
+          /usr/bin/install -m 755 "${BUILT_PRODUCTS_DIR}/InsomniaHelper" "$helper_destination/InsomniaHelper"
+          /usr/bin/install -m 644 "${SRCROOT}/InsomniaHelper/Resources/co.groundwork-ai.insomnia.helper.plist" "$plist_destination/co.groundwork-ai.insomnia.helper.plist"
           identity="${EXPANDED_CODE_SIGN_IDENTITY:--}"
-          /usr/bin/codesign --force --sign "$identity" --options runtime --timestamp=none --entitlements "${SRCROOT}/Config/InsomniaHelper.entitlements" "$destination/InsomniaHelper"
+          /usr/bin/codesign --force --sign "$identity" --options runtime --timestamp=none --entitlements "${SRCROOT}/Config/InsomniaHelper.entitlements" "$helper_destination/InsomniaHelper"
   InsomniaTests:
     type: bundle.unit-test
     platform: macOS
@@ -215,7 +216,7 @@ Create `.gitignore`:
 xcuserdata/
 ```
 
-The app post-build phase creates `Contents/Library/LaunchDaemons`, copies the helper executable and daemon plist there, and signs the embedded helper with the active build identity before the outer app is signed.
+The app post-build phase copies the helper executable to `Contents/MacOS`, copies only the daemon plist to `Contents/Library/LaunchDaemons`, and signs the embedded helper with the active build identity before the outer app is signed. This is the `SMAppService.daemon` bundle layout documented by Apple.
 
 The launchd plist must contain exactly:
 
@@ -227,7 +228,7 @@ The launchd plist must contain exactly:
   <key>Label</key>
   <string>co.groundwork-ai.insomnia.helper</string>
   <key>BundleProgram</key>
-  <string>Contents/Library/LaunchDaemons/InsomniaHelper</string>
+  <string>Contents/MacOS/InsomniaHelper</string>
   <key>MachServices</key>
   <dict>
     <key>co.groundwork-ai.insomnia.helper</key>
@@ -299,7 +300,7 @@ xcodebuild -project Insomnia.xcodeproj -scheme InsomniaTests -configuration Debu
 xcodebuild -project Insomnia.xcodeproj -scheme InsomniaHelperTests -configuration Debug -destination 'platform=macOS' test
 ```
 
-Expected: all commands exit `0`, and the built app contains `Contents/Library/LaunchDaemons/InsomniaHelper` plus the plist.
+Expected: all commands exit `0`, and the built app contains `Contents/MacOS/InsomniaHelper` plus the plist under `Contents/Library/LaunchDaemons`.
 
 - [x] **Step 5: Commit the skeleton**
 

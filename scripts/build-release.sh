@@ -45,7 +45,7 @@ mkdir -p "$dmg_root"
 /usr/bin/ditto "$archived_app" "$dmg_root/Insomnia.app"
 ln -s /Applications "$dmg_root/Applications"
 
-helper="$dmg_root/Insomnia.app/Contents/Library/LaunchDaemons/InsomniaHelper"
+helper="$dmg_root/Insomnia.app/Contents/MacOS/InsomniaHelper"
 /usr/bin/codesign --force --sign "$identity" --options runtime --timestamp \
   --entitlements "$repository_root/Config/InsomniaHelper.entitlements" "$helper"
 /usr/bin/codesign --force --sign "$identity" --options runtime --timestamp \

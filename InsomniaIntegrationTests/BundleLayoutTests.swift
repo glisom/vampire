@@ -5,11 +5,12 @@ final class BundleLayoutTests: XCTestCase {
     func testPackagedAppContainsOnlyExpectedHelperLayout() throws {
         let app = try builtAppURL()
         let helperDirectory = app.appendingPathComponent("Contents/Library/LaunchDaemons", isDirectory: true)
-        let helper = helperDirectory.appendingPathComponent("InsomniaHelper")
+        let helper = app.appendingPathComponent("Contents/MacOS/InsomniaHelper")
         let daemonPlist = helperDirectory.appendingPathComponent("co.groundwork-ai.insomnia.helper.plist")
 
         XCTAssertTrue(FileManager.default.isExecutableFile(atPath: helper.path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: daemonPlist.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: helperDirectory.appendingPathComponent("InsomniaHelper").path))
         XCTAssertFalse(FileManager.default.fileExists(atPath: app.appendingPathComponent("Contents/Resources/InsomniaHelper").path))
     }
 
@@ -27,7 +28,7 @@ final class BundleLayoutTests: XCTestCase {
         XCTAssertEqual(daemon["RunAtLoad"] as? Bool, true)
         XCTAssertEqual(
             daemon["BundleProgram"] as? String,
-            "Contents/Library/LaunchDaemons/InsomniaHelper"
+            "Contents/MacOS/InsomniaHelper"
         )
         let services = try XCTUnwrap(daemon["MachServices"] as? [String: Bool])
         XCTAssertEqual(services, ["co.groundwork-ai.insomnia.helper": true])

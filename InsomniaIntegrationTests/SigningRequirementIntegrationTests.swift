@@ -5,7 +5,7 @@ import XCTest
 final class SigningRequirementIntegrationTests: XCTestCase {
     func testAppAndHelperHaveSameTeamIdentifierWhenTeamSigned() throws {
         let app = try builtAppURL()
-        let helper = app.appendingPathComponent("Contents/Library/LaunchDaemons/InsomniaHelper")
+        let helper = app.appendingPathComponent("Contents/MacOS/InsomniaHelper")
         guard let appTeam = try teamIdentifier(at: app) else {
             throw XCTSkip("Debug build is ad-hoc signed; Team ID checks run on signed configurations.")
         }

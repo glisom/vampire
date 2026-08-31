@@ -30,7 +30,7 @@ trap cleanup EXIT
 mounted=true
 
 app="$mountpoint/Insomnia.app"
-helper="$app/Contents/Library/LaunchDaemons/InsomniaHelper"
+helper="$app/Contents/MacOS/InsomniaHelper"
 main_executable="$app/Contents/MacOS/Insomnia"
 
 /usr/bin/codesign --verify --deep --strict --verbose=2 "$app"

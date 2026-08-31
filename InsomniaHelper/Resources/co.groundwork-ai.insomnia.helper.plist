@@ -5,7 +5,7 @@
   <key>Label</key>
   <string>co.groundwork-ai.insomnia.helper</string>
   <key>BundleProgram</key>
-  <string>Contents/Library/LaunchDaemons/InsomniaHelper</string>
+  <string>Contents/MacOS/InsomniaHelper</string>
   <key>MachServices</key>
   <dict>
     <key>co.groundwork-ai.insomnia.helper</key>
