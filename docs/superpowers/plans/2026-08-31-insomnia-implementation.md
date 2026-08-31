@@ -510,11 +510,11 @@ git commit -m "feat: add fixed pmset power settings adapter"
 - Consumes: `PowerSettingsManaging` and `HelperState`.
 - Produces: `RecoveryMarkerStoring`, `HelperResult`, and serialized methods `normalizeAtStartup()`, `setEnabled(_:)`, and `connectionInvalidated()`.
 
-- [ ] **Step 1: Write failing marker tests**
+- [x] **Step 1: Write failing marker tests**
 
 Cover atomic creation, `0600` marker permissions, existence, and removal using a unique temporary directory. Assert the plist contains only `active = true`.
 
-- [ ] **Step 2: Write failing state-machine tests**
+- [x] **Step 2: Write failing state-machine tests**
 
 Cover these exact orderings with recording fakes:
 
@@ -580,11 +580,11 @@ func testEnableIsRejectedWhileRecoveryIsUnresolved() {
 }
 ```
 
-- [ ] **Step 3: Run focused tests and verify failure**
+- [x] **Step 3: Run focused tests and verify failure**
 
 Expected: FAIL because the marker and controller are undefined.
 
-- [ ] **Step 4: Implement marker storage and controller**
+- [x] **Step 4: Implement marker storage and controller**
 
 Define:
 
@@ -604,11 +604,11 @@ struct HelperResult {
 
 `HelperController` owns a private serial `DispatchQueue`. Every public operation executes synchronously on that queue. Startup always requests Off first. Enable creates the marker before requesting On. Disable requests Off before removing the marker. Disconnect checks the marker and performs disable recovery. Recovery failure retains the marker and state `.error`; while that state and marker persist, enable requests return `.recoveryFailed` without attempting On.
 
-- [ ] **Step 5: Run helper tests**
+- [x] **Step 5: Run helper tests**
 
 Expected: PASS, including event-order assertions.
 
-- [ ] **Step 6: Commit recovery behavior**
+- [x] **Step 6: Commit recovery behavior**
 
 ```bash
 git add InsomniaHelper/Sources InsomniaHelperTests
