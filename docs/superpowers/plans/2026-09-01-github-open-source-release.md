@@ -24,6 +24,7 @@
 - The initial public release is `v0.1.0`, marketing version `0.1.0`, build `1`.
 - The website and blog announcement remain deferred.
 - Use TDD for repository scripts and commit after every code or documentation task passes its scoped checks.
+- Public-policy scanners must fail closed: preflight `rg`, treat only status `1` as a clean no-match, propagate scanner and tracked-inventory failures, include hidden tracked paths, exclude `.git`, and retain normal ignore handling for generated output.
 
 ## File Map
 
@@ -84,6 +85,33 @@ script_directory="$(cd "$(dirname "$0")" && pwd -P)"
 repository_root="$(cd "$script_directory/.." && pwd -P)"
 cd "$repository_root"
 
+if ! command -v rg >/dev/null 2>&1; then
+  echo "Required scanner not found: rg; public repository policy scan incomplete" >&2
+  exit 127
+fi
+
+run_forbidden_rg_scan() {
+  failure_message="$1"
+  scan_description="$2"
+  shift 2
+
+  scan_status=0
+  rg "$@" || scan_status=$?
+  case "$scan_status" in
+    0)
+      echo "$failure_message" >&2
+      exit 1
+      ;;
+    1)
+      return 0
+      ;;
+    *)
+      echo "Public repository policy scan failed: $scan_description (rg exit $scan_status); publication blocked" >&2
+      exit "$scan_status"
+      ;;
+  esac
+}
+
 required_files=(LICENSE README.md CONTRIBUTING.md SECURITY.md docs/privacy.md)
 for path in "${required_files[@]}"; do
   if [[ ! -f "$path" ]]; then
@@ -97,30 +125,52 @@ if [[ -e KICKOFF.md ]]; then
   exit 1
 fi
 
-if git ls-files | /usr/bin/grep -Eiq '\.(p12|pfx|key|pem|cer|mobileprovision|provisionprofile)$|(^|/)(\.env|credentials|secrets?)([./]|$)'; then
-  echo "Tracked credential-like filename found" >&2
-  exit 1
+tracked_inventory="$(mktemp "${TMPDIR:-/tmp}/vampire-tracked-files.XXXXXX")"
+trap 'rm -f "$tracked_inventory"' EXIT
+
+inventory_status=0
+git ls-files > "$tracked_inventory" || inventory_status=$?
+if [[ "$inventory_status" -ne 0 ]]; then
+  echo "Tracked-file inventory failed (git ls-files exit $inventory_status); publication blocked" >&2
+  exit "$inventory_status"
 fi
 
-if rg -n '/Users/[A-Za-z0-9._-]+|Grant Isom / [C]odex|Apple [M]5|PID [0-9]+' --glob '*.md' .; then
-  echo "Current Markdown contains private machine-run details" >&2
-  exit 1
-fi
+credential_filename_status=0
+/usr/bin/grep -Eiq '\.(p12|pfx|key|pem|cer|mobileprovision|provisionprofile)$|(^|/)(\.env|credentials|secrets?)([./]|$)' "$tracked_inventory" || credential_filename_status=$?
+case "$credential_filename_status" in
+  0)
+    echo "Tracked credential-like filename found" >&2
+    exit 1
+    ;;
+  1)
+    ;;
+  *)
+    echo "Tracked credential filename scan failed (grep exit $credential_filename_status); publication blocked" >&2
+    exit "$credential_filename_status"
+    ;;
+esac
 
-if rg -l --regexp='-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}' .; then
-  echo "Current tree contains a credential-like value" >&2
-  exit 1
-fi
+run_forbidden_rg_scan \
+  "Current Markdown contains private machine-run details" \
+  "private machine detail scan" \
+  -n '/Users/[A-Za-z0-9._-]+|Grant Isom / [C]odex|Apple [M]5|PID [0-9]+' \
+  --glob '*.md' --hidden --glob '!.git/**' .
 
-if rg -n '/bin/(sh|bash|zsh)|system\(|popen\(' InsomniaHelper/Sources; then
-  echo "Privileged helper contains a forbidden shell execution path" >&2
-  exit 1
-fi
+run_forbidden_rg_scan \
+  "Current tree contains a credential-like value" \
+  "credential value scan" \
+  -l --regexp='-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}' \
+  --hidden --glob '!.git/**' .
 
-if rg -n 'URLSession|Network\.framework|import Network|Sparkle|Telemetry|Analytics' Insomnia InsomniaHelper InsomniaShared; then
-  echo "Runtime source exceeds Vampire's offline product boundary" >&2
-  exit 1
-fi
+run_forbidden_rg_scan \
+  "Privileged helper contains a forbidden shell execution path" \
+  "privileged helper shell execution scan" \
+  -n '/bin/(sh|bash|zsh)|system\(|popen\(' InsomniaHelper/Sources
+
+run_forbidden_rg_scan \
+  "Runtime source exceeds Vampire's offline product boundary" \
+  "offline product boundary scan" \
+  -n 'URLSession|Network\.framework|import Network|Sparkle|Telemetry|Analytics' Insomnia InsomniaHelper InsomniaShared
 
 echo "Public repository policy checks passed"
 ```
@@ -134,6 +184,8 @@ set -euo pipefail
 script_directory="$(cd "$(dirname "$0")" && pwd -P)"
 bash "$script_directory/check-public-repo.sh"
 ```
+
+The completed regression harness also exercises the real checker with `rg` absent, a fake `rg` returning status `2`, a failing `git ls-files`, a credential-like value in a tracked hidden `.github` fixture, and credential-like text in ignored generated output. Every incomplete scan and hidden tracked finding must block publication; ignored generated output remains excluded.
 
 Make both executable:
 
@@ -386,6 +438,11 @@ if [[ ! -f "$workflow" ]]; then
   exit 1
 fi
 
+if ! command -v rg >/dev/null 2>&1; then
+  echo "Required scanner not found: rg; CI workflow policy scan incomplete" >&2
+  exit 127
+fi
+
 required_lines=(
   'runs-on: macos-26'
   'contents: read'
@@ -393,16 +450,36 @@ required_lines=(
   'scripts/ci.sh'
 )
 for line in "${required_lines[@]}"; do
-  if ! /usr/bin/grep -Fq "$line" "$workflow"; then
-    echo "CI workflow is missing required policy: $line" >&2
-    exit 1
-  fi
+  required_line_status=0
+  /usr/bin/grep -Fq "$line" "$workflow" || required_line_status=$?
+  case "$required_line_status" in
+    0)
+      ;;
+    1)
+      echo "CI workflow is missing required policy: $line" >&2
+      exit 1
+      ;;
+    *)
+      echo "CI workflow required-policy scan failed for '$line' (grep exit $required_line_status); validation blocked" >&2
+      exit "$required_line_status"
+      ;;
+  esac
 done
 
-if rg -n 'sudo|VAMPIRE_SIGNING_IDENTITY|VAMPIRE_NOTARY_PROFILE|notarytool|stapler|upload-artifact|SMAppService|pmset' "$workflow"; then
-  echo "CI workflow contains a privileged, signing, or artifact-upload step" >&2
-  exit 1
-fi
+scan_status=0
+rg -n 'sudo|VAMPIRE_SIGNING_IDENTITY|VAMPIRE_NOTARY_PROFILE|notarytool|stapler|upload-artifact|SMAppService|pmset' "$workflow" || scan_status=$?
+case "$scan_status" in
+  0)
+    echo "CI workflow contains a privileged, signing, or artifact-upload step" >&2
+    exit 1
+    ;;
+  1)
+    ;;
+  *)
+    echo "CI workflow policy scan failed (rg exit $scan_status); validation blocked" >&2
+    exit "$scan_status"
+    ;;
+esac
 
 echo "CI workflow policy checks passed"
 ```
@@ -415,6 +492,8 @@ scripts/test-ci-config.sh
 ```
 
 Expected: FAIL with `Missing GitHub Actions workflow: .github/workflows/ci.yml`.
+
+The completed regression harness also runs the real checker with `rg` absent and with a fake `rg` returning status `2`; both cases must fail with an incomplete-scan diagnostic.
 
 - [ ] **Step 2: Add the shared nonprivileged CI entrypoint**
 
