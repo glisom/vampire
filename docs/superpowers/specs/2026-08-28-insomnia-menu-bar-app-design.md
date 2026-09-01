@@ -2,16 +2,16 @@
 type: context
 status: approved
 date: 2026-08-28
-tags: [project, internal-tool, macos, app-design]
+tags: [project, open-source, macos, app-design]
 ---
 
 # Vampire Menu Bar App Design
 
-**Status:** Approved by Grant on 2026-08-31; portable-hardware and Vampire brand amendments approved on 2026-08-31
+**Status:** Approved by Grant on 2026-08-31; portable-hardware and Vampire brand amendments approved on 2026-08-31; GitHub distribution amendment approved on 2026-09-01
 **Owner:** Grant Isom  
 **Minimum OS:** macOS 13 Ventura  
-**Distribution:** Direct, outside the Mac App Store  
-**Source repository:** `/Users/grantisom/Developer/insomnia`
+**Distribution:** Direct through GitHub Releases, outside the Mac App Store
+**Source repository:** `https://github.com/glisom/vampire`
 
 ## Objective
 
@@ -208,7 +208,7 @@ Errors are logged with `Logger` using the subsystem `co.groundwork-ai.insomnia`.
 
 ## Project Structure
 
-Production source code lives in a dedicated Git repository at `/Users/grantisom/Developer/insomnia`, outside the Obsidian vault. The repository will contain one Xcode project with these targets:
+Production source code lives in the public `glisom/vampire` GitHub repository. The repository contains one Xcode project with these targets:
 
 ```text
 Insomnia/                 AppKit menu-bar application
@@ -229,9 +229,11 @@ The Obsidian project keeps product context, decisions, and planning. Generated b
 - Validate nested code signatures before notarization.
 - Submit the disk image through Apple's current notary service and staple the ticket.
 - Verify the final disk image with `codesign`, `spctl`, and `stapler` before sharing.
+- Publish a GitHub Release containing the disk image, its SHA-256 checksum, brief install notes, and the exact source tag.
 - Distribute a disk image containing Vampire and an Applications-folder shortcut.
+- Publish the source under the MIT License.
 
-The current Mac has Command Line Tools but not full Xcode. Full Xcode is an implementation prerequisite for creating, archiving, signing, and notarizing the release.
+Full Xcode 26 or newer and XcodeGen 2.45 or newer are implementation prerequisites for compiling the Icon Composer artwork, creating archives, signing, and notarizing a release.
 
 ## Testing Strategy
 
