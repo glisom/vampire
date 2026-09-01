@@ -1097,6 +1097,43 @@ Normalize the generated transparent source to a centered square master, then det
 
 ---
 
+### Task 14: Current macOS Icon Composer App Icon
+
+**Approved amendment:** Grant approved updating the app icon to Apple's current macOS icon guidance on 2026-09-01. The app icon moves from a transparent freeform silhouette to Apple's rounded canvas, while the approved moon-and-stars Off mark and bat On mark remain unchanged.
+
+**Files:**
+- Create: `Design/AppIcon/*.svg`
+- Create: `Insomnia/Resources/AppIcon.icon/*`
+- Remove: `Insomnia/Resources/Assets.xcassets/*`
+- Modify: `InsomniaTests/StatusIconRendererTests.swift`
+- Modify: `InsomniaIntegrationTests/BundleLayoutTests.swift`
+- Modify: `docs/superpowers/specs/2026-08-28-insomnia-menu-bar-app-design.md`
+- Modify: `docs/release-checklist.md`
+
+- [x] **Step 1: Write and run the failing full-canvas icon test**
+
+Replace the Task 13 transparency assertion with an opaque 1024-by-1024 canvas assertion. Run the focused test and confirm it fails against the freeform PNG icon because both side samples are transparent.
+
+- [x] **Step 2: Create flat vector source layers**
+
+Create a solid deep-plum background, a broad burgundy coffin, and a warm-cream bat as 1024-by-1024 SVG artwork. Keep the source frontal and flat with no masks, blur, gradients, shadows, bevels, or baked material effects.
+
+- [x] **Step 3: Compose and inspect `AppIcon.icon`**
+
+Import the background, coffin, and bat into separate Icon Composer groups. Disable glass on the opaque background, retain system-rendered depth on the foreground groups, inspect Default, Dark, Mono, and small previews, then save the editable `AppIcon.icon` document.
+
+- [x] **Step 4: Replace the legacy app-icon catalog**
+
+Remove the PNG app-icon asset catalog and keep `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`. Confirm Xcode 26 compiles the `.icon` source for the macOS 13 deployment target and emits both `Assets.car` and `AppIcon.icns`.
+
+- [x] **Step 5: Run focused nonprivileged verification**
+
+Run the full-canvas unit test and the packaged bundle metadata assertion. No app launch, helper registration, administrator approval, or power-setting mutation is part of this task.
+
+- [x] **Step 6: Run full nonprivileged verification and commit**
+
+---
+
 ## Final Verification
 
 - [ ] Confirm `git status --short` is empty.

@@ -4,19 +4,19 @@ import XCTest
 
 @MainActor
 final class StatusIconRendererTests: XCTestCase {
-    func testAppIconUsesTransparentSpaceOutsideCoffinSilhouette() throws {
+    func testAppIconUsesOpaqueFullCanvasArtwork() throws {
         let repositoryRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
         let iconURL = repositoryRoot
-            .appendingPathComponent("Insomnia/Resources/Assets.xcassets/AppIcon.appiconset")
-            .appendingPathComponent("Vampire-512x512@2x.png")
-        let bitmap = try XCTUnwrap(NSBitmapImageRep(data: Data(contentsOf: iconURL)))
+            .appendingPathComponent("Design/AppIcon/preview.svg")
+        let image = try XCTUnwrap(NSImage(contentsOf: iconURL))
+        let bitmap = try render(image, pixels: NSSize(width: 1_024, height: 1_024))
 
         XCTAssertEqual(bitmap.pixelsWide, 1_024)
         XCTAssertEqual(bitmap.pixelsHigh, 1_024)
-        XCTAssertLessThan(alpha(atX: 80, y: 512, in: bitmap), 0.05)
-        XCTAssertLessThan(alpha(atX: 943, y: 512, in: bitmap), 0.05)
+        XCTAssertGreaterThan(alpha(atX: 80, y: 512, in: bitmap), 0.99)
+        XCTAssertGreaterThan(alpha(atX: 943, y: 512, in: bitmap), 0.99)
         XCTAssertGreaterThan(alpha(atX: 512, y: 512, in: bitmap), 0.9)
     }
 
@@ -79,13 +79,13 @@ final class StatusIconRendererTests: XCTestCase {
         XCTAssertLessThan(alpha(atPointX: 9, pointY: 2, in: bitmap), 0.05)
     }
 
-    private func render(_ image: NSImage) throws -> NSBitmapImageRep {
-        let scale = 2
+    private func render(_ image: NSImage, pixels: NSSize? = nil) throws -> NSBitmapImageRep {
+        let outputSize = pixels ?? NSSize(width: image.size.width * 2, height: image.size.height * 2)
         let bitmap = try XCTUnwrap(
             NSBitmapImageRep(
                 bitmapDataPlanes: nil,
-                pixelsWide: Int(image.size.width) * scale,
-                pixelsHigh: Int(image.size.height) * scale,
+                pixelsWide: Int(outputSize.width),
+                pixelsHigh: Int(outputSize.height),
                 bitsPerSample: 8,
                 samplesPerPixel: 4,
                 hasAlpha: true,

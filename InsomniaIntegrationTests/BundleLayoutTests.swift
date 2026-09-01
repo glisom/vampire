@@ -32,6 +32,11 @@ final class BundleLayoutTests: XCTestCase {
                 atPath: app.appendingPathComponent("Contents/Resources/Assets.car").path
             )
         )
+        XCTAssertTrue(
+            FileManager.default.fileExists(
+                atPath: app.appendingPathComponent("Contents/Resources/AppIcon.icns").path
+            )
+        )
 
         let daemon = try plist(
             at: app.appendingPathComponent(

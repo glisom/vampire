@@ -27,7 +27,7 @@ The app must prevent lid-close sleep while Vampire is On, restore normal lid-clo
 ## Brand Identity
 
 - The user-facing product name is **Vampire**.
-- The app icon is a simplified deep-purple coffin silhouette with one warm-cream bat emblem on a transparent canvas. It has no enclosing rounded-square tile or perimeter border.
+- The app icon follows Apple's current rounded-canvas system: an opaque deep-plum background, a broad flat burgundy coffin, and one warm-cream bat in separate Icon Composer layers. It has no drawn perimeter border, baked bevel, or baked shadow; macOS supplies the mask, material, lighting, and Default, Dark, and Mono appearances.
 - The menu-bar image is a monochrome moon-and-stars mark while Off and a bat silhouette while On, suitable for light and dark menu bars.
 - The menu uses one native checkable `Keep Mac Awake with Lid Closed` setting; the former Lullaby wording is removed.
 - Existing bundle IDs, helper labels, XPC names, target/module names, and recovery paths containing `insomnia` remain stable to preserve the approved helper security contract and macOS approval state.

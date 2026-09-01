@@ -1,0 +1,65 @@
+{
+  "fill" : {
+    "solid" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "bat.svg",
+          "name" : "Cream Bat"
+        }
+      ],
+      "name" : "Bat",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "image-name" : "coffin 2.svg",
+          "name" : "Burgundy Coffin"
+        }
+      ],
+      "name" : "Coffin",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "background.svg",
+          "name" : "Plum Canvas"
+        }
+      ],
+      "name" : "Background",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
