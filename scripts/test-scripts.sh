@@ -30,4 +30,6 @@ if [[ -n "${VAMPIRE_NOTARIZED_DMG:-}" ]]; then
   bash "$script_directory/verify-release.sh" "$VAMPIRE_NOTARIZED_DMG"
 fi
 
+bash "$script_directory/test-release-assets.sh"
+
 echo "Release script smoke tests passed"
