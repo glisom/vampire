@@ -127,7 +127,7 @@ Do not publish a release from a dirty worktree, a commit that differs from the n
 - Gatekeeper accepts the contained app as notarized Developer ID software.
 - Stapler validates the distributed DMG.
 - `shasum -a 256 -c Vampire.dmg.sha256` succeeds for the uploaded asset.
-- The release tag resolves to the source commit recorded by the release checklist.
+- The release tag resolves to the clean source commit captured in local release metadata when the checksum is generated.
 
 ### Manual Boundaries
 
