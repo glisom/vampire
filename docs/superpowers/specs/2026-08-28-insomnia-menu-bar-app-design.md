@@ -27,8 +27,8 @@ The app must prevent lid-close sleep while Vampire is On, restore normal lid-clo
 ## Brand Identity
 
 - The user-facing product name is **Vampire**.
-- The app icon is a friendly moon-vampire tucked into a stylized coffin, using a dark purple palette and warm moon glow.
-- The menu-bar image is a monochrome coffin-and-crescent template mark suitable for light and dark menu bars.
+- The app icon is a simplified deep-purple coffin silhouette with one warm-cream bat emblem on a transparent canvas. It has no enclosing rounded-square tile or perimeter border.
+- The menu-bar image is a monochrome moon-and-stars mark while Off and a bat silhouette while On, suitable for light and dark menu bars.
 - The menu uses one native checkable `Keep Mac Awake with Lid Closed` setting; the former Lullaby wording is removed.
 - Existing bundle IDs, helper labels, XPC names, target/module names, and recovery paths containing `insomnia` remain stable to preserve the approved helper security contract and macOS approval state.
 
@@ -184,7 +184,7 @@ About Vampire
 Quit Vampire                      ⌘Q
 ```
 
-The primary item is a single native checkable setting. Its checkmark is On only while lid-close sleep is disabled. Setup Required replaces it with `Set Up Vampire…`; Unsupported replaces it with a disabled `Vampire Requires a MacBook`; Error replaces it with `Restore Normal Lid Sleep…`. The status item's accessibility label continues to announce `Vampire: On`, `Vampire: Off`, or the applicable exceptional state. The menu-bar image uses the custom coffin-and-crescent template mark, with distinct Off and On treatments. Error adds the system warning badge treatment and exposes the concise error detail as the recovery item's tooltip.
+The primary item is a single native checkable setting. Its checkmark is On only while lid-close sleep is disabled. Setup Required replaces it with `Set Up Vampire…`; Unsupported replaces it with a disabled `Vampire Requires a MacBook`; Error replaces it with `Restore Normal Lid Sleep…`. The status item's accessibility label continues to announce `Vampire: On`, `Vampire: Off`, or the applicable exceptional state. The custom template mark shows a crescent with two stars while Off and a broad-winged bat while On. Error adds the system warning badge treatment and exposes the concise error detail as the recovery item's tooltip.
 
 First launch uses a single native explanatory alert before beginning setup. Setup Required, Unsupported, and Error states never visually resemble On.
 

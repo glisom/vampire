@@ -1064,6 +1064,39 @@ Use one checkable primary setting, remove the redundant disabled status row, gro
 
 ---
 
+### Task 13: Simplified Borderless Icon System
+
+**Approved amendment:** Grant approved a simplified icon system on 2026-08-31. The app icon uses the coffin itself as the outer silhouette with transparent surrounding space, while the menu uses moon and stars for Off and a bat for On.
+
+**Files:**
+- Modify: `Insomnia/Resources/Assets.xcassets/AppIcon.appiconset/*.png`
+- Modify: `Insomnia/Sources/StatusIconRenderer.swift`
+- Modify: `InsomniaTests/StatusIconRendererTests.swift`
+- Modify: `docs/superpowers/specs/2026-08-28-insomnia-menu-bar-app-design.md`
+- Modify: `docs/release-checklist.md`
+
+- [x] **Step 1: Generate and inspect the simplified app-icon master**
+
+Use built-in ImageGen with the prior icon as a palette reference. Replace the detailed character scene with one deep-purple coffin and one warm-cream bat emblem. Require genuine alpha transparency, no enclosing rounded-square tile, no perimeter border, no text, and no decorative scene elements. Correct the first generated checkerboard background with a targeted background-extraction edit.
+
+- [x] **Step 2: Write failing menu-icon and app-icon tests**
+
+Require a wide-winged bat with a narrow tail for On, a crescent and two separated stars for Off, unclipped 18-point template canvases, distinct state pixels, and transparent side space around the 1024-pixel coffin master.
+
+- [x] **Step 3: Implement and inspect the simplified menu icons**
+
+Render both states from AppKit paths with no runtime assets. Inspect an enlarged raster preview to confirm the crescent has a clean open edge, both stars remain distinct, and the bat has pointed wing tips without clipped-looking vertical edges.
+
+- [x] **Step 4: Export the complete macOS app-icon catalog**
+
+Normalize the generated transparent source to a centered square master, then deterministically export the 16, 32, 64, 128, 256, 512, and 1024-pixel PNGs named by `Contents.json`. Preserve alpha at every size and visually inspect the 16, 32, and 1024-pixel results.
+
+- [x] **Step 5: Run full nonprivileged verification**
+
+- [x] **Step 6: Commit the simplified icon system**
+
+---
+
 ## Final Verification
 
 - [ ] Confirm `git status --short` is empty.

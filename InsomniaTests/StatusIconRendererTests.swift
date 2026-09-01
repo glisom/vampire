@@ -4,6 +4,22 @@ import XCTest
 
 @MainActor
 final class StatusIconRendererTests: XCTestCase {
+    func testAppIconUsesTransparentSpaceOutsideCoffinSilhouette() throws {
+        let repositoryRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let iconURL = repositoryRoot
+            .appendingPathComponent("Insomnia/Resources/Assets.xcassets/AppIcon.appiconset")
+            .appendingPathComponent("Vampire-512x512@2x.png")
+        let bitmap = try XCTUnwrap(NSBitmapImageRep(data: Data(contentsOf: iconURL)))
+
+        XCTAssertEqual(bitmap.pixelsWide, 1_024)
+        XCTAssertEqual(bitmap.pixelsHigh, 1_024)
+        XCTAssertLessThan(alpha(atX: 80, y: 512, in: bitmap), 0.05)
+        XCTAssertLessThan(alpha(atX: 943, y: 512, in: bitmap), 0.05)
+        XCTAssertGreaterThan(alpha(atX: 512, y: 512, in: bitmap), 0.9)
+    }
+
     func testVampireIconsUseTemplateCanvasWithoutClipping() throws {
         for isAwake in [false, true] {
             let image = try XCTUnwrap(StatusIconRenderer.image(for: .vampire(isAwake: isAwake)))
@@ -20,14 +36,14 @@ final class StatusIconRendererTests: XCTestCase {
         }
     }
 
-    func testAwakeCoffinHasHighShouldersAndTaperedFoot() throws {
+    func testAwakeBatHasWideWingsAndNarrowTail() throws {
         let image = try XCTUnwrap(StatusIconRenderer.image(for: .vampire(isAwake: true)))
         let bitmap = try render(image)
 
-        let shoulderWidth = occupiedWidth(atPointY: 12.5, in: bitmap)
-        let footWidth = occupiedWidth(atPointY: 3, in: bitmap)
+        let wingWidth = occupiedWidth(atPointY: 10, in: bitmap)
+        let tailWidth = occupiedWidth(atPointY: 4, in: bitmap)
 
-        XCTAssertGreaterThanOrEqual(shoulderWidth, footWidth + 8)
+        XCTAssertGreaterThanOrEqual(wingWidth, tailWidth + 12)
     }
 
     func testAwakeAndSleepingIconsHaveDistinctPixels() throws {
@@ -37,27 +53,30 @@ final class StatusIconRendererTests: XCTestCase {
         XCTAssertNotEqual(try render(sleeping).tiffRepresentation, try render(awake).tiffRepresentation)
     }
 
-    func testAwakeCrescentDoesNotCutASecondRightHandSliver() throws {
+    func testAwakeBatUsesOpenSpaceAboveItsHead() throws {
         let image = try XCTUnwrap(StatusIconRenderer.image(for: .vampire(isAwake: true)))
         let bitmap = try render(image)
 
-        XCTAssertGreaterThan(alpha(atPointX: 13, pointY: 10, in: bitmap), 0.9)
+        XCTAssertLessThan(alpha(atPointX: 9, pointY: 16, in: bitmap), 0.05)
     }
 
-    func testSleepingCrescentDoesNotDrawASecondRightHandSliver() throws {
+    func testAwakeBatReachesBothWingTips() throws {
+        let image = try XCTUnwrap(StatusIconRenderer.image(for: .vampire(isAwake: true)))
+        let bitmap = try render(image)
+
+        XCTAssertGreaterThan(alpha(atPointX: 2.5, pointY: 10, in: bitmap), 0.5)
+        XCTAssertGreaterThan(alpha(atPointX: 15.5, pointY: 10, in: bitmap), 0.5)
+    }
+
+    func testSleepingIconUsesMoonAndTwoSeparatedStars() throws {
         let image = try XCTUnwrap(StatusIconRenderer.image(for: .vampire(isAwake: false)))
         let bitmap = try render(image)
 
-        XCTAssertLessThan(alpha(atPointX: 13, pointY: 10, in: bitmap), 0.5)
-    }
-
-    func testSleepingCrescentHasACleanOpenRightEdge() throws {
-        let image = try XCTUnwrap(StatusIconRenderer.image(for: .vampire(isAwake: false)))
-        let bitmap = try render(image)
-
-        for pointY: CGFloat in [9, 10, 11] {
-            XCTAssertLessThan(alpha(atPointX: 12.25, pointY: pointY, in: bitmap), 0.05)
-        }
+        XCTAssertGreaterThan(alpha(atPointX: 3.5, pointY: 9, in: bitmap), 0.5)
+        XCTAssertLessThan(alpha(atPointX: 8.5, pointY: 10, in: bitmap), 0.05)
+        XCTAssertGreaterThan(alpha(atPointX: 13.5, pointY: 13, in: bitmap), 0.2)
+        XCTAssertGreaterThan(alpha(atPointX: 15, pointY: 7.5, in: bitmap), 0.2)
+        XCTAssertLessThan(alpha(atPointX: 9, pointY: 2, in: bitmap), 0.05)
     }
 
     private func render(_ image: NSImage) throws -> NSBitmapImageRep {
