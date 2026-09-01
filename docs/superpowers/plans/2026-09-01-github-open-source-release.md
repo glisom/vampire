@@ -97,7 +97,7 @@ if [[ -e KICKOFF.md ]]; then
   exit 1
 fi
 
-if git ls-files | /usr/bin/grep -Eiq '\.(p12|pfx|key|pem|cer|mobileprovision|provisionprofile)$|(^|/)(\.env($|\.)|credentials|secrets?)(/|$)'; then
+if git ls-files | /usr/bin/grep -Eiq '\.(p12|pfx|key|pem|cer|mobileprovision|provisionprofile)$|(^|/)(\.env|credentials|secrets?)([./]|$)'; then
   echo "Tracked credential-like filename found" >&2
   exit 1
 fi
@@ -696,7 +696,7 @@ Expected: clean status and `Public repository policy checks passed`.
 - [ ] **Step 2: Scan reachable history for credential-like filenames**
 
 ```bash
-git rev-list --objects --all | rg -i '\.(p12|pfx|key|pem|cer|mobileprovision|provisionprofile)$|(^|/)(\.env($|\.)|credentials|secrets?)(/|$)'
+git rev-list --objects --all | rg -i '\.(p12|pfx|key|pem|cer|mobileprovision|provisionprofile)$|(^|/)(\.env|credentials|secrets?)([./]|$)'
 ```
 
 Expected: no output. If output identifies real credential material, stop before any GitHub creation or push and ask Grant before history rewriting or credential rotation.
@@ -706,12 +706,31 @@ Expected: no output. If output identifies real credential material, stop before 
 Run:
 
 ```bash
+findings=0
 for revision in $(git rev-list --all); do
-  git grep -I -l -E -e '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}' "$revision" -- . || true
-done | sort -u
+  if paths="$(git grep -I -l -E -e '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}' "$revision" -- .)"; then
+    if [[ -n "$paths" ]]; then
+      printf '%s\n' "$paths"
+      findings=1
+    fi
+    continue
+  else
+    grep_status=$?
+    if [[ "$grep_status" -eq 1 ]]; then
+      continue
+    fi
+    echo "Reachable-history credential scan failed for revision $revision (git grep exit $grep_status)" >&2
+    exit "$grep_status"
+  fi
+done
+
+if [[ "$findings" -ne 0 ]]; then
+  echo "Reachable history contains credential-like content; publication blocked" >&2
+  exit 1
+fi
 ```
 
-Expected: no output. This uses `-l`, so a finding reports only a revision/path and never prints a credential value. Treat any output as a publication blocker until reviewed.
+Expected: no output and exit `0`. This uses `-l`, so a finding reports only a revision/path and never prints a credential value, then exits `1` with a clear publication-blocking message. `git grep` exit `1` means no match for that revision; any exit greater than `1` stops the audit as an incomplete scan. Treat any finding or scan error as a publication blocker until reviewed.
 
 - [ ] **Step 4: Reconfirm the source security boundary**
 

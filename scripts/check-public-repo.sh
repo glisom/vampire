@@ -18,7 +18,7 @@ if [[ -e KICKOFF.md ]]; then
   exit 1
 fi
 
-if git ls-files | /usr/bin/grep -Eiq '\.(p12|pfx|key|pem|cer|mobileprovision|provisionprofile)$|(^|/)(\.env($|\.)|credentials|secrets?)(/|$)'; then
+if git ls-files | /usr/bin/grep -Eiq '\.(p12|pfx|key|pem|cer|mobileprovision|provisionprofile)$|(^|/)(\.env|credentials|secrets?)([./]|$)'; then
   echo "Tracked credential-like filename found" >&2
   exit 1
 fi
