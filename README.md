@@ -4,6 +4,8 @@ Vampire is a native macOS menu-bar utility that changes lid-close sleep behavior
 
 Vampire changes lid-close sleep only. It does not prevent ordinary idle sleep, display sleep, or screen locking, and it does not replace Lungo.
 
+Install the latest release from [GitHub Releases](https://github.com/glisom/vampire/releases/latest).
+
 ## Requirements
 
 - A MacBook with a built-in lid
@@ -14,12 +16,21 @@ The app has no Dock icon, main window, networking, analytics, updater, or third-
 
 ## Installation and first launch
 
-1. Open `Vampire.dmg` and drag Vampire to Applications.
-2. Launch `/Applications/Vampire.app`.
-3. Continue through the one-time helper setup prompt.
-4. If macOS requires approval, choose Open System Settings and enable Vampire under Login Items.
+1. Download the latest `Vampire.dmg` from [GitHub Releases](https://github.com/glisom/vampire/releases/latest).
+2. Open `Vampire.dmg` and drag Vampire to Applications.
+3. Launch `/Applications/Vampire.app`.
+4. Continue through the one-time helper setup prompt.
+5. If macOS requires approval, choose Open System Settings and enable Vampire under Login Items.
 
 Later On and Off changes should not request an administrator password.
+
+## Verify the download
+
+Download `Vampire.dmg.sha256` with the disk image, then run:
+
+```bash
+shasum -a 256 -c Vampire.dmg.sha256
+```
 
 ## Using Vampire
 
@@ -46,11 +57,11 @@ For emergency manual restoration, run `sudo /usr/bin/pmset -a disablesleep 0`.
 
 ## Privacy
 
-Vampire has no networking, telemetry, or analytics. Unified logs exclude passwords, usernames, file contents, and device identifiers.
+Vampire does not collect data. See [Vampire Privacy](docs/privacy.md) for details. Unified logs exclude passwords, usernames, file contents, and device identifiers.
 
 ## Development
 
-Full Xcode 16 or newer and XcodeGen 2.45 or newer are required. Generate and build with:
+Full Xcode 26 or newer and XcodeGen 2.45 or newer are required because the checked-in Icon Composer source requires Xcode 26. Generate and build with:
 
 ```bash
 xcodegen generate
@@ -58,6 +69,12 @@ xcodebuild -project Insomnia.xcodeproj -scheme Insomnia -destination 'platform=m
 ```
 
 Ordinary tests use fake command adapters and temporary marker stores. They never register the helper or change the host Mac’s power settings.
+
+```bash
+scripts/ci.sh
+```
+
+Contributors who need focused runs can use:
 
 ```bash
 xcodebuild -project Insomnia.xcodeproj -scheme InsomniaTests -destination 'platform=macOS' test
@@ -80,3 +97,9 @@ scripts/verify-release.sh build/release/Vampire.dmg
 Credentials, certificate material, Apple IDs, and Keychain profiles must never be committed.
 
 The Xcode targets, bundle identifier `co.groundwork-ai.insomnia`, helper label, and recovery path retain their original internal names so existing helper approval and the signed XPC contract remain stable.
+
+Official binaries are signed and notarized by Grant Isom. Source builds use the contributor's own signing context.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development and safety boundaries, [SECURITY.md](SECURITY.md) for private vulnerability reporting, and [LICENSE](LICENSE) for the MIT license.

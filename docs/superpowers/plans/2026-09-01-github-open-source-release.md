@@ -102,12 +102,12 @@ if git ls-files | /usr/bin/grep -Eiq '\.(p12|pfx|key|pem|cer|mobileprovision|pro
   exit 1
 fi
 
-if rg -n '/Users/grantisom|Grant Isom / Codex|Apple M5|PID [0-9]+' --glob '*.md' .; then
+if rg -n '/Users/[A-Za-z0-9._-]+|Grant Isom / [C]odex|Apple [M]5|PID [0-9]+' --glob '*.md' .; then
   echo "Current Markdown contains private machine-run details" >&2
   exit 1
 fi
 
-if rg -l -e '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}' .; then
+if rg -l --regexp='-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}' .; then
   echo "Current tree contains a credential-like value" >&2
   exit 1
 fi
@@ -344,7 +344,7 @@ Run:
 ```bash
 scripts/test-public-repo.sh
 git diff --check
-rg -n '/Users/grantisom|Grant Isom / Codex|Apple M5|PID [0-9]+' --glob '*.md' .
+rg -n '/Users/[A-Za-z0-9._-]+|Grant Isom / [C]odex|Apple [M]5|PID [0-9]+' --glob '*.md' .
 ```
 
 Expected: the policy script passes, `git diff --check` produces no output, and the final `rg` command produces no output.

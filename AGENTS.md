@@ -9,9 +9,11 @@ Vampire is a native macOS menu-bar utility that changes lid-close sleep behavior
 Read these completely before implementation:
 
 - `docs/superpowers/specs/2026-08-28-insomnia-menu-bar-app-design.md`
+- `docs/superpowers/specs/2026-09-01-github-open-source-release-design.md`
 - `docs/superpowers/plans/2026-08-31-insomnia-implementation.md`
+- `docs/superpowers/plans/2026-09-01-github-open-source-release.md`
 
-The approved spec governs product behavior. The implementation plan governs sequencing, file boundaries, tests, and commits. If they conflict, stop and ask Grant before changing either document.
+The approved specs govern product behavior. The implementation plans govern sequencing, file boundaries, tests, and commits. If they conflict, stop and ask Grant before changing either document.
 
 ## Safety
 
