@@ -37,7 +37,6 @@ main_executable="$app/Contents/MacOS/Vampire"
 /usr/bin/codesign --verify --strict --verbose=2 "$helper"
 /usr/sbin/spctl --assess --type execute --verbose=2 "$app"
 xcrun stapler validate "$dmg"
-xcrun stapler validate "$app"
 
 for executable in "$main_executable" "$helper"; do
   architectures="$(/usr/bin/lipo -archs "$executable")"

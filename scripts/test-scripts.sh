@@ -26,4 +26,8 @@ expect_usage_failure build-release VAMPIRE_SIGNING_IDENTITY env -u VAMPIRE_SIGNI
 expect_usage_failure notarize VAMPIRE_NOTARY_PROFILE env -u VAMPIRE_NOTARY_PROFILE -u INSOMNIA_NOTARY_PROFILE bash "$script_directory/notarize.sh"
 expect_usage_failure verify-release Vampire.dmg bash "$script_directory/verify-release.sh"
 
+if [[ -n "${VAMPIRE_NOTARIZED_DMG:-}" ]]; then
+  bash "$script_directory/verify-release.sh" "$VAMPIRE_NOTARIZED_DMG"
+fi
+
 echo "Release script smoke tests passed"

@@ -966,7 +966,7 @@ sudo /usr/bin/pmset -a disablesleep 0
 
 Record pass/fail and macOS/build version in the checklist. Do not notarize until every earlier acceptance item passes.
 
-- [ ] **Step 7: Build, notarize, and verify the release DMG**
+- [x] **Step 7: Build, notarize, and verify the release DMG**
 
 Run the three release scripts with the selected Developer ID identity and stored notary profile. Expected: notary status Accepted, stapler validation success, Gatekeeper acceptance, and both architectures present.
 

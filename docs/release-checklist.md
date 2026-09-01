@@ -6,8 +6,8 @@ Record each result for the exact candidate being tested.
 - Mac model: MacBook Pro (Mac17,2, Apple M5)
 - Vampire version/build: 0.1.0 (1)
 - Signed candidate source commit: `d37023e27cb0ba244caf3956dcc363ffb25362f5`
-- `Vampire.dmg` SHA-256: `2b258beae65235e58f32c288529b681a9ca2c4712d6888b12a11586b08ca4fc5`
-- Tester/date: Grant Isom / Codex, 2026-09-01 09:11 CDT
+- `Vampire.dmg` SHA-256: `e31d65e0d40c2ff17edacfc8dd232de19bce0e1cf954f69095ceec00d74659dc`
+- Tester/date: Grant Isom / Codex, 2026-09-01 09:28 CDT
 
 ## Nonprivileged checks
 
@@ -49,10 +49,10 @@ sudo /usr/bin/pmset -a disablesleep 0
 ## Notarization and distribution
 
 - [x] Build `build/release/Vampire.dmg` with Developer ID Application identity for Team `3D247B7547`.
-- [ ] Notary service reports Accepted.
-- [ ] Stapler validates the DMG and contained app.
+- [x] Notary service reports Accepted. (Submission `304a7885-e373-48bd-98a4-5967237f8cd9`.)
+- [x] Stapler validates the distributed DMG.
 - [x] `codesign --verify --deep --strict` passes.
-- [ ] Gatekeeper accepts the app with `spctl --assess --type execute`. (Current expected result: `source=Unnotarized Developer ID`.)
+- [x] Gatekeeper accepts the app with `spctl --assess --type execute`. (`source=Notarized Developer ID`.)
 - [ ] Test the DMG on a Mac that did not build it.
 - [ ] On a clean macOS 13-or-newer account, complete install and one-time approval.
 - [ ] Record final result and any failures below.
@@ -69,14 +69,15 @@ sudo /usr/bin/pmset -a disablesleep 0
 | Lid-close On and Off | Partial | Grant confirmed the Mac remained usable after the physical lid-close check while Vampire reported On. Vampire was then turned Off and the required explicit restore completed. The normal-sleep Off leg remains pending. |
 | Launch at Login | Skipped | The setting successfully toggled On and back Off while Vampire remained Off. Grant chose to skip the two additional restart checks, so launch and non-launch behavior after login remain unverified. |
 | Safe removal | Skipped | Grant chose to preserve the installed and approved helper. The fake-backed unit tests pass, but live unregistration was not exercised. |
-| Notarization and Gatekeeper | Pending | Candidate signatures and both architectures validate. Notarization is blocked until a `notarytool` Keychain profile is stored; Gatekeeper currently reports the expected `Unnotarized Developer ID`. |
+| Notarization and Gatekeeper | Pass | Submission `304a7885-e373-48bd-98a4-5967237f8cd9` was Accepted. The distributed DMG staple validates, Gatekeeper reports `Notarized Developer ID`, signatures pass, and both executables are universal. |
 
 Privileged acceptance notes:
 
-- Commit `d37023e` produced a fresh Developer ID-signed universal DMG with SHA-256 `2b258beae65235e58f32c288529b681a9ca2c4712d6888b12a11586b08ca4fc5`. The app and helper satisfy their designated requirements, both contain `arm64` and `x86_64`, and the bundle contains the Icon Composer-generated `AppIcon` resources. No helper registration, app launch, or power-setting mutation occurred while building or inspecting it.
+- Commit `d37023e` produced a fresh DMG containing a Developer ID-signed universal app. After notarization and stapling, its final SHA-256 is `e31d65e0d40c2ff17edacfc8dd232de19bce0e1cf954f69095ceec00d74659dc`. Submission `304a7885-e373-48bd-98a4-5967237f8cd9` was Accepted, the distributed DMG staple validates, and Gatekeeper accepts the contained app as `Notarized Developer ID`. The app and helper satisfy their designated requirements, both contain `arm64` and `x86_64`, and the bundle contains the Icon Composer-generated `AppIcon` resources. No helper registration, app launch, or power-setting mutation occurred while building or inspecting it.
 - The user-facing Vampire rebrand preserves the existing bundle ID, helper label, XPC contract, and recovery path. The signed A+C icon candidate was built and verified without launching the app or changing real power settings.
 - The refined menu-bar coffin and crescent in `1300e6c` passed six pixel-level renderer tests, including a regression test for a fully transparent open crescent edge, and received visual approval before this candidate was built.
-- That signed icon candidate is superseded by the Task 14 Icon Composer app icon. The current source uses Apple's rounded canvas, three flat vector layers, and generated Default, Dark, and Mono appearances while preserving the approved moon/stars-to-bat menu marks. The replacement signed candidate is built and statically verified; notarization remains pending.
+- That signed icon candidate is superseded by the Task 14 Icon Composer app icon. The current source uses Apple's rounded canvas, three flat vector layers, and generated Default, Dark, and Mono appearances while preserving the approved moon/stars-to-bat menu marks. The replacement signed candidate is built, notarized, stapled, and verified.
+- Release verification follows Apple's nested-container workflow: Vampire's signed app is packaged inside a signed DMG, only the outermost DMG is submitted and stapled, and Gatekeeper assessment verifies the contained app's notarized status.
 - The first helper-kill attempt safely restored Off but showed that the app retained a dead XPC connection, so the demand-launched helper did not restart. Commit `965c8de` installs the plan-required interruption and invalidation handlers and replaces the dead connection on retry; fake-connection regression coverage and independent review passed before rebuilding this candidate.
 - The repaired helper-kill acceptance rerun confirmed the recovery marker existed before PID 25514 was killed. A fresh Turn Off request launched PID 37817 through the replacement XPC connection; helper startup successfully normalized Off and removed the marker before the final explicit safety restore.
 - Restart-while-On acceptance confirmed the root helper launched during boot and normalized Off before Vampire ran in the login session. The stale marker was already cleared when checked as root, and the explicit post-test restore succeeded.
